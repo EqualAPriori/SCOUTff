@@ -1,0 +1,44 @@
+; ******* FILE DS_params_GAFF.itp *******
+; Karl J. Schweighofer, Ulrich Essmann, and Max Berkowitz
+; Simulation of Sodium Dodecyl Sulfate at the Water-Vapor and
+; Water-Carbon Tetrachloride Interfaces at Low Surface Coverage
+; J. Phys. Chem. B 1997, 101, 3793-3799
+; Hui Yan, Shi-Ling Yuan, Gui-Ying Xu, and Cheng-Bu Liu
+; Effect of Ca2+ and Mg2+ Ions on Surfactant Solutions
+; Investigated by Molecular Dynamics Simulation
+; Langmuir 2010, 26, 10448-10459
+
+[ atomtypes ]
+s6 16 32.06 0.0000 A 3.56359e-01 1.04600e+00 ; s6 in GAFF
+
+[ bondtypes ]
+s6 oT 1 0.158 251040 ; from Yan = from Schweighofer
+s6 oP 1 0.146 376560 ; from Schweighofer ~ from Yan
+
+[ angletypes ]
+cA oT s6 1 112.6 520.100 ; from Yan = from Schweighofer
+oT s6 oP 1 102.6 426.768 ; from Yan = from Schweighofer
+oP s6 oP 1 115.3 484.5 ; from Yan
+cA cD cD 1 110.63 528.94 ; = cD-cD-cD
+cA cD hL 1 110.05 388.02 ; = cD-cD-hL
+cD cA hE 1 110.07 387.94 ; = cA-cA-hE
+cD cA oT 1 108.42 567.18 ; = cA-cA-oT
+
+[ dihedraltypes ]
+cD cD cD cA 9 180.0 1.302 1 ; = cD-cD-cD-cD
+cD cD cD cA 9 180.0 0.5159 2 ;
+cD cD cD cA 9 0.0 0.4807 3 ;
+cD cD cD cA 9 0.0 0.9201 4 ;
+cD cD cD cA 9 0.0 0.9079 5 ;
+cA oT s6 oP 9 0.0 3.347 2 ; = cA-oT-p5-oP
+cA oT s6 oP 9 0.0 3.347 2 ;
+hE cA oT s6 9 0.0 1.604 3 ; = hE-cA-oT-pA
+cD cA oT s6 9 0.0 1.604 3 ; = cA-cA-oT-pA
+hL cD cA oT 9 0.0 0 3 ; = hE-cA-cA-oT
+hL cD cA oT 9 0.0 1.046 1 ;
+hL cD cA oT 9 0.0 0 3 ; = hE-cA-cA-oT
+hL cD cA oT 9 0.0 1.046 1 ;
+cD cD cA oT 9 0.0 0.6510 3 ; = cA-cA-cA-oT
+hL cD cA hE 9 0.0 0.6510 3 ; = hA-cA-cA-hE
+cD cD cA hE 9 0.0 0.6510 3 ; = cA-cA-cA-hE
+cA cD cD hL 9 0.0 0.6694 3 ; = cD-cD-cD-hL

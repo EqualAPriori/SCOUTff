@@ -1,0 +1,56 @@
+Modifications for DS:
+LJ parameter for op-Na+ interactions: eps=0.786902122376kJ/mol, sig=0.268038898687nm
+
+=== example code: ===
+ftmp = [f for ii, f in enumerate(system.getForces()) if isinstance(f,mm.NonbondedForce)]
+fnb = ftmp[0]   
+
+inds_Na = []
+inds_Op = []
+
+for ia,atom in enumerate(top.topology.atoms()):
+    if atom.element: #i.e. not virtual site
+        if atom.residue.name in ['DS']:
+            if atom.name in ['O1','O2','O3']:
+                inds_Op.append(ia)
+                #Oatoms.append(atom.id)
+                #assert(ia == atom.id-1)
+                #fExt.addParticle(ia, [])
+                [qO, sigO, epsO] = fnb.getParticleParameters(ia)
+        if atom.residue.name in ['NA+']:
+            inds_Na.append(ia)
+            [qNa, sigNa, epsNa] = fnb.getParticleParameters(ia)
+
+print("... Detected original Na LJ parameters: {}".format([qNa, sigNa, epsNa]))
+print("... Detected original oP LJ parameters: {}".format([qO, sigO, epsO]))
+
+print( "... Detected {} Na ions".format(len(inds_Na)) )
+print(inds_Na)
+print( "... Detected {} Op oxygens".format(len(inds_Op)) )
+print(inds_Op)
+
+eps=0.786902122376 #kJ/mol
+sig=0.268038898687 #nm
+print("... add custom non-bonded force")
+energy_function = '-4*eps0*( sig0r12 - sig0r6) + 4*eps1*( sig1r12 - sig1r6 );'
+energy_function += 'sig0r12 = sig0r6^2;sig0r6 = (sig0/r)^6;'
+energy_function += 'sig1r12 = sig1r6^2;sig1r6 = (sig1/r)^6;'
+print("... with LJ parameters eps: {}kJ/mol, sig: {}nm".format(eps,sig))
+
+global fcnb
+fcnb = mm.CustomNonbondedForce(energy_function)
+fcnb.setNonbondedMethod( min(fnb.getNonbondedMethod(),2) )
+fcnb.setCutoffDistance( fnb.getCutoffDistance() )
+fcnb.addGlobalParameter('eps0',np.sqrt(epsNa*epsO))
+fcnb.addGlobalParameter('sig0',0.5*(sigNa+sigO))
+fcnb.addGlobalParameter('eps1',eps)
+fcnb.addGlobalParameter('sig1',sig)
+fcnb.addInteractionGroup( inds_Na, inds_Op )
+
+#TODO: match long range correction
+#TODO: match switching function
+for ind in range(system.getNumParticles()):
+    fcnb.addParticle()
+
+system.addForce( fcnb )
+ 
