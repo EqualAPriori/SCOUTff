@@ -1,0 +1,37 @@
+; units are in nanometers and KJ/mol. GaFF2 parameterization
+[ defaults ] 
+; nbfunc        comb-rule       gen-pairs       fudgeLJ fudgeQQ 
+1               2               yes             0.50000   0.83330 
+
+[ atomtypes ] 
+; atomType   atomic#   atomMass   charge   ptype    sigma   epsilon 
+os    8   16.0000   0.0   A    0.3156098   0.3037584 
+c3    6   12.0100   0.0   A    0.3397710   0.4510352 
+h1    1   1.0080   0.0   A    0.2421997   0.0870272 
+
+[ bondtypes ] 
+;    i     j    func       b0      kb 
+c3 c3 1  0.1538000  194572.74 
+c3 h1 1  0.1097000  314569.86 
+c3 os 1  0.1432000  238287.17 
+
+[ angletypes ] 
+;        i        j        k      func       th0       cth 
+c3 c3 h1   1  109.5600000    392.19 
+c3 c3 os   1  107.9700000    713.84 
+h1 c3 h1   1  108.4600000    324.70 
+os c3 h1   1  109.7800000    521.97 
+c3 os c3   1  112.4800000    554.74 
+
+[ dihedraltypes ] 
+;        i       j        k        l      func      phase      kd      pn 
+h1 c3 c3 h1 9 0.0  0.650844 3 
+os c3 c3 h1 9 0.0  0.000000 3 
+os c3 c3 h1 9 0.0  1.046000 1 
+os c3 c3 os 9 0.0  0.000000 3 
+os c3 c3 os 9 180.0  0.000000 2 
+os c3 c3 os 9 180.0  0.711280 1 
+c3 os c3 h1 9 0.0  1.410008 3 
+c3 c3 os c3 9 0.0  1.004200 3 
+c3 c3 os c3 9 0.0  0.669400 2 
+c3 c3 os c3 9 0.0  0.000000 1 
