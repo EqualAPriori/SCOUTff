@@ -18,12 +18,12 @@
 ; nbfunc        comb-rule       gen-pairs       fudgeLJ fudgeQQ
 1               2               yes             0.5          0.83333333  
 
-#include "AH12f1.itp"
+#include "AH12f1_iso.itp"
 
 
 [ moleculetype ]
 ; Name            nrexcl
-AH12f1          3
+AH12f1_iso          3
 
 [ atoms ]
 ;   nr       type  resnr residue  atom   cgnr    charge       mass  typeB    chargeB      massB
