@@ -1,7 +1,7 @@
 Modifications for DS:
 LJ parameter for op-Na+ interactions: eps=0.786902122376kJ/mol, sig=0.268038898687nm
 
-Modifications for PAA:
+Modifications for PAA: long-range part (4 eps sig^6) is fixed to that of the original ff
 LJ parameter for o-Na+ interactions: eps=0.635387705kJ/mol, sig=0.263079489nm 
 
 === example code: ===
