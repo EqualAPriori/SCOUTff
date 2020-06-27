@@ -1,12 +1,16 @@
 Modifications for DS:
 LJ parameter for op-Na+ interactions: eps=0.786902122376kJ/mol, sig=0.268038898687nm
 
+Modifications for PAA: long-range part (4 eps sig^6) is fixed to that of the original ff
+LJ parameter for o-Na+ interactions: eps=0.635387705kJ/mol, sig=0.263079489nm 
+
 === example code: ===
 ftmp = [f for ii, f in enumerate(system.getForces()) if isinstance(f,mm.NonbondedForce)]
 fnb = ftmp[0]   
 
 inds_Na = []
 inds_Op = []
+inds_o_PAA = []
 
 for ia,atom in enumerate(top.topology.atoms()):
     if atom.element: #i.e. not virtual site
@@ -20,37 +24,71 @@ for ia,atom in enumerate(top.topology.atoms()):
         if atom.residue.name in ['NA+']:
             inds_Na.append(ia)
             [qNa, sigNa, epsNa] = fnb.getParticleParameters(ia)
+       if atom.residue.name in ['AHD','AD','ATD']: #if ionized residue, modify LJ parameters of both oxygens on COO- group
+            if atom.name in ['OD1','OD2']:
+                inds_o_PAA.append(ia)
+                [_, sig_o_PAA, eps_o_PAA] = fnb.getParticleParameters(ia)
+        elif atom.residue.name in ['AHP','AP','ATP']: #if neutral residue, modify parameters of only one oxygen
+            if atom.name in ['OD1']:
+                inds_o_PAA.append(ia)
+                [_, sig_o_PAA, eps_o_PAA] = fnb.getParticleParameters(ia)
 
-print("... Detected original Na LJ parameters: {}".format([qNa, sigNa, epsNa]))
-print("... Detected original oP LJ parameters: {}".format([qO, sigO, epsO]))
+if len(inds_Op) > 0 and len(inds_Na) > 0:
+    print("... Detected original Na LJ parameters: {}".format([qNa, sigNa, epsNa]))
+    print("... Detected original oP LJ parameters: {}".format([qO, sigO, epsO]))
 
-print( "... Detected {} Na ions".format(len(inds_Na)) )
-print(inds_Na)
-print( "... Detected {} Op oxygens".format(len(inds_Op)) )
-print(inds_Op)
+    print( "... Detected {} Na ions".format(len(inds_Na)) )
+    print(inds_Na)
+    print( "... Detected {} Op oxygens".format(len(inds_Op)) )
+    print(inds_Op)
 
-eps=0.786902122376 #kJ/mol
-sig=0.268038898687 #nm
-print("... add custom non-bonded force")
-energy_function = '-4*eps0*( sig0r12 - sig0r6) + 4*eps1*( sig1r12 - sig1r6 );'
-energy_function += 'sig0r12 = sig0r6^2;sig0r6 = (sig0/r)^6;'
-energy_function += 'sig1r12 = sig1r6^2;sig1r6 = (sig1/r)^6;'
-print("... with LJ parameters eps: {}kJ/mol, sig: {}nm".format(eps,sig))
+    eps=0.786902122376 #kJ/mol
+    sig=0.268038898687 #nm
+    print("... add custom non-bonded force")
+    energy_function = '-4*eps0*( sig0r12 - sig0r6) + 4*eps1*( sig1r12 - sig1r6 );'
+    energy_function += 'sig0r12 = sig0r6^2;sig0r6 = (sig0/r)^6;'
+    energy_function += 'sig1r12 = sig1r6^2;sig1r6 = (sig1/r)^6;'
+    print("... with LJ parameters eps: {}kJ/mol, sig: {}nm".format(eps,sig))
 
-global fcnb
-fcnb = mm.CustomNonbondedForce(energy_function)
-fcnb.setNonbondedMethod( min(fnb.getNonbondedMethod(),2) )
-fcnb.setCutoffDistance( fnb.getCutoffDistance() )
-fcnb.addGlobalParameter('eps0',np.sqrt(epsNa*epsO))
-fcnb.addGlobalParameter('sig0',0.5*(sigNa+sigO))
-fcnb.addGlobalParameter('eps1',eps)
-fcnb.addGlobalParameter('sig1',sig)
-fcnb.addInteractionGroup( inds_Na, inds_Op )
+    #global fcnb
+    fcnb = mm.CustomNonbondedForce(energy_function)
+    fcnb.setNonbondedMethod( min(fnb.getNonbondedMethod(),2) )
+    fcnb.setCutoffDistance( fnb.getCutoffDistance() )
+    fcnb.addGlobalParameter('eps0',np.sqrt(epsNa*epsO))
+    fcnb.addGlobalParameter('sig0',0.5*(sigNa+sigO))
+    fcnb.addGlobalParameter('eps1',eps)
+    fcnb.addGlobalParameter('sig1',sig)
+    fcnb.addInteractionGroup( inds_Na, inds_Op )
 
-#TODO: match long range correction
-#TODO: match switching function
-for ind in range(system.getNumParticles()):
-    fcnb.addParticle()
+    #TODO: match long range correction
+    #TODO: match switching function
+    for ind in range(system.getNumParticles()):
+        fcnb.addParticle()
 
-system.addForce( fcnb )
+    system.addForce( fcnb )
+
+if len(inds_o_PAA) > 0 and len(inds_Na) > 0:
+    print("... Detected original Na LJ parameters: {}".format([sigNa, epsNa]))
+    print("... Detected original o LJ parameters: {}".format([sig_o_PAA, eps_o_PAA]))
+    print( "... Detected {} Na ions".format(len(inds_Na)) )
+    print( "... Detected {} o oxygens".format(len(inds_o_PAA)))
+    print("... add custom non-bonded force for O-PAA and Na+")
+    eps=0.635387705 #kJ/mol
+    sig=0.263079489 #nm
+    energy_function = '-4*eps0PAA*( sig0PAAr12 - sig0PAAr6) + 4*eps1PAA*( sig1PAAr12 - sig1PAAr6 );'
+    energy_function += 'sig0PAAr12 = sig0PAAr6^2;sig0PAAr6 = (sig0PAA/r)^6;'
+    energy_function += 'sig1PAAr12 = sig1PAAr6^2;sig1PAAr6 = (sig1PAA/r)^6;'
+    print("... with LJ parameters eps: {}kJ/mol, sig: {}nm".format(eps,sig))
+    fcnb = simtk.openmm.openmm.CustomNonbondedForce(energy_function)
+    fcnb.setNonbondedMethod( min(fnb.getNonbondedMethod(),2) )
+    print("Cut off method of custom non-bonded force: {}".format(fcnb.getNonbondedMethod()))
+    fcnb.setCutoffDistance( fnb.getCutoffDistance() )
+    fcnb.addGlobalParameter('eps0PAA',np.sqrt(epsNa*eps_o_PAA))
+    fcnb.addGlobalParameter('sig0PAA',0.5*(sigNa+sig_o_PAA))
+    fcnb.addGlobalParameter('eps1PAA',eps)
+    fcnb.addGlobalParameter('sig1PAA',sig)
+    fcnb.addInteractionGroup( inds_Na, inds_o_PAA )
+    for ind in range(system.getNumParticles()):
+        fcnb.addParticle()
+    system.addForce( fcnb )
  
