@@ -1,0 +1,10 @@
+HEADER 
+TITLE     Built with Packmol                                             
+REMARK   Packmol generated pdb file 
+REMARK   Home-Page: http://www.ime.unicamp.br/~martinez/packmol
+REMARK
+HETATM    1  OW  SOL A   1      18.148  27.626  10.339  1.00  0.00           O  
+HETATM    2  HW1 SOL A   1      17.723  26.865  10.305  1.00  0.00           H  
+HETATM    3  HW2 SOL A   1      17.507  28.218  10.360  1.00  0.00           H  
+HETATM    4  MW  SOL A   1      17.990  27.601  10.337  1.00  0.00           X
+END  

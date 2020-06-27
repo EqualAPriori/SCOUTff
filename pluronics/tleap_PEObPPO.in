@@ -1,0 +1,16 @@
+source leaprc.gaff2
+loadamberprep hPEO.prepi
+loadamberprep mPEO.prepi
+loadamberprep tPEO.prepi
+loadamberprep tEO1.prepi
+loadamberprep hPPO1.prepi
+loadamberprep mPPO1.prepi
+loadamberprep mPPO2.prepi
+loadamberprep tPPO1.prepi
+mol = sequence __DUMMYSEQ__ # {hP1 mP1 mP2 mP1 tP1}
+savepdb mol __NAME__.pdb
+savemol2 mol __NAME__.mol2 0
+
+saveamberparm mol __NAME__.prmtop __NAME__.inpcrd
+saveamberparm mol __NAME__.parm7 __NAME__.rst7
+quit
