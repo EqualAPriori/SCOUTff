@@ -1,0 +1,9 @@
+; ******* Force-Field File for nPEO_10_nPPO_0_bPEO_1_nChains_1 *******
+#include "FFFile/NeatPEO_N_10_0.itp"
+#include "FFFile/NeatPEO_N_10_0.top"
+[ system ]
+; Name
+Mixture
+[ molecules ]
+; Compound
+NeatPEO_N_10_0 120

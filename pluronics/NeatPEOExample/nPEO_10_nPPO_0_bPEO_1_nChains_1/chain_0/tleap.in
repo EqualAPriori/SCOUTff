@@ -1,0 +1,16 @@
+source leaprc.gaff2
+loadamberprep hPEO.prepi
+loadamberprep mPEO.prepi
+loadamberprep tPEO.prepi
+loadamberprep tEO1.prepi
+loadamberprep hPPO1.prepi
+loadamberprep mPPO1.prepi
+loadamberprep mPPO2.prepi
+loadamberprep tPPO1.prepi
+mol = sequence { hEO mEO mEO mEO mEO mEO mEO mEO mEO mEO tE1 } # {hP1 mP1 mP2 mP1 tP1}
+savepdb mol NeatPEO_N_10_0.pdb
+savemol2 mol NeatPEO_N_10_0.mol2 0
+
+saveamberparm mol NeatPEO_N_10_0.prmtop NeatPEO_N_10_0.inpcrd
+saveamberparm mol NeatPEO_N_10_0.parm7 NeatPEO_N_10_0.rst7
+quit

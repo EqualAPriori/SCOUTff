@@ -1,0 +1,8 @@
+tolerance 1.25
+
+output mixture.pdb
+
+structure NeatPEO_N_10_0.pdb
+  number 120
+  inside box 0.1 0.1 0.1 57.9 57.9 89.9
+end structure

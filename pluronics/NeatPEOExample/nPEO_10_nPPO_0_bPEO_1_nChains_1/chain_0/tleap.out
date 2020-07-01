@@ -1,0 +1,58 @@
+-I: Adding /mnt/c/amber18/dat/leap/prep to search path.
+-I: Adding /mnt/c/amber18/dat/leap/lib to search path.
+-I: Adding /mnt/c/amber18/dat/leap/parm to search path.
+-I: Adding /mnt/c/amber18/dat/leap/cmd to search path.
+-s: Ignoring startup file: leaprc
+-f: Source tleap.in.
+
+Welcome to LEaP!
+Sourcing: ./tleap.in
+----- Source: /mnt/c/amber18/dat/leap/cmd/leaprc.gaff2
+----- Source of /mnt/c/amber18/dat/leap/cmd/leaprc.gaff2 done
+Log file: ./leap.log
+Loading parameters: /mnt/c/amber18/dat/leap/parm/gaff2.dat
+Reading title:
+AMBER General Force Field for organic molecules (Version 2.11, May 2016)
+Loading Prep file: ./hPEO.prepi
+Loading Prep file: ./mPEO.prepi
+Loading Prep file: ./tPEO.prepi
+Loading Prep file: ./tEO1.prepi
+Loading Prep file: ./hPPO1.prepi
+Loading Prep file: ./mPPO1.prepi
+Loading Prep file: ./mPPO2.prepi
+Loading Prep file: ./tPPO1.prepi
+Writing pdb file: NeatPEO_N_10_0.pdb
+Writing mol2 file: NeatPEO_N_10_0.mol2
+Checking Unit.
+Building topology.
+Building atom parameters.
+Building bond parameters.
+Building angle parameters.
+Building proper torsion parameters.
+Building improper torsion parameters.
+old PREP-specified impropers:
+ total 0 improper torsions applied
+ 0 improper torsions in old prep form
+Building H-Bond parameters.
+Incorporating Non-Bonded adjustments.
+Not Marking per-residue atom chain types.
+Marking per-residue atom chain types.
+ (no restraints)
+Checking Unit.
+Building topology.
+Building atom parameters.
+Building bond parameters.
+Building angle parameters.
+Building proper torsion parameters.
+Building improper torsion parameters.
+old PREP-specified impropers:
+ total 0 improper torsions applied
+ 0 improper torsions in old prep form
+Building H-Bond parameters.
+Incorporating Non-Bonded adjustments.
+Not Marking per-residue atom chain types.
+Marking per-residue atom chain types.
+ (no restraints)
+	Quit
+
+Exiting LEaP: Errors = 0; Warnings = 0; Notes = 0.

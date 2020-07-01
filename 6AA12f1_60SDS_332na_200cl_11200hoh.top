@@ -1,0 +1,20 @@
+#include "/home/mnguyen/bin/SCOUTff/amber99.ff/forcefield_JCTip4pEw.itp"
+#include "/home/mnguyen/bin/SCOUTff/amber99.ff/ionized.itp"
+#include "/home/mnguyen/bin/SCOUTff/amber99.ff/opc4.itp"
+
+#include "/home/mnguyen/bin/SCOUTff/AMBERLipid14.itp"
+#include "/home/mnguyen/bin/SCOUTff/DS_params.itp"
+#include "/home/mnguyen/bin/SCOUTff/DS.itp"
+#include "/home/mnguyen/bin/SCOUTff/AA12f1_iso.top"
+
+[ system ]
+; Name
+Generic title
+
+[ molecules ]
+; Compound       #mols
+AA12f1_iso           6
+DS               60
+NA+              332
+CL-              200
+SOL              11200
