@@ -1,0 +1,162 @@
+REMARK generated with Assemble.py, by Matteo Degiacomi and Valentina Erastova, 2014-2018
+REMARK sequence: 1111111111
+ATOM      1  C8  STa P   1       7.177   0.395   3.294  1.00  0.00            
+ATOM      2  C7  STa P   1       7.284  -0.563   2.109  1.00  0.00            
+ATOM      3  C1  STa P   1       7.849  -1.922   2.450  1.00  0.00            
+ATOM      4  C2  STa P   1       8.150  -2.298   3.771  1.00  0.00            
+ATOM      5  C3  STa P   1       8.676  -3.563   4.046  1.00  0.00            
+ATOM      6  C4  STa P   1       8.908  -4.465   3.006  1.00  0.00            
+ATOM      7  C5  STa P   1       8.615  -4.102   1.689  1.00  0.00            
+ATOM      8  C6  STa P   1       8.088  -2.837   1.413  1.00  0.00            
+ATOM      9  C8  STa P   2       5.908  -0.713   1.484  1.00  0.00            
+ATOM     10  C7  STa P   2       6.020  -0.954  -0.020  1.00  0.00            
+ATOM     11  C1  STa P   2       6.530  -2.324  -0.400  1.00  0.00            
+ATOM     12  C2  STa P   2       6.779  -3.323   0.559  1.00  0.00            
+ATOM     13  C3  STa P   2       7.255  -4.578   0.169  1.00  0.00            
+ATOM     14  C4  STa P   2       7.490  -4.848  -1.180  1.00  0.00            
+ATOM     15  C5  STa P   2       7.249  -3.864  -2.142  1.00  0.00            
+ATOM     16  C6  STa P   2       6.772  -2.609  -1.753  1.00  0.00            
+ATOM     17  C8  STa P   3       4.660  -0.712  -0.650  1.00  0.00            
+ATOM     18  C7  STa P   3       4.610   0.658  -1.321  1.00  0.00            
+ATOM     19  C1  STa P   3       5.411   0.762  -2.598  1.00  0.00            
+ATOM     20  C2  STa P   3       6.059  -0.348  -3.167  1.00  0.00            
+ATOM     21  C3  STa P   3       6.795  -0.212  -4.348  1.00  0.00            
+ATOM     22  C4  STa P   3       6.892   1.034  -4.971  1.00  0.00            
+ATOM     23  C5  STa P   3       6.255   2.145  -4.414  1.00  0.00            
+ATOM     24  C6  STa P   3       5.518   2.009  -3.233  1.00  0.00            
+ATOM     25  C8  STa P   4       3.158   1.013  -1.587  1.00  0.00            
+ATOM     26  C7  STa P   4       2.689   2.117  -0.642  1.00  0.00            
+ATOM     27  C1  STa P   4       3.256   3.485  -0.943  1.00  0.00            
+ATOM     28  C2  STa P   4       4.066   3.729  -2.066  1.00  0.00            
+ATOM     29  C3  STa P   4       4.577   5.007  -2.308  1.00  0.00            
+ATOM     30  C4  STa P   4       4.285   6.054  -1.432  1.00  0.00            
+ATOM     31  C5  STa P   4       3.483   5.823  -0.311  1.00  0.00            
+ATOM     32  C6  STa P   4       2.972   4.545  -0.068  1.00  0.00            
+ATOM     33  C8  STa P   5       1.171   2.166  -0.672  1.00  0.00            
+ATOM     34  C7  STa P   5       0.577   1.093   0.238  1.00  0.00            
+ATOM     35  C1  STa P   5       0.727   1.370   1.716  1.00  0.00            
+ATOM     36  C2  STa P   5       1.277   2.571   2.200  1.00  0.00            
+ATOM     37  C3  STa P   5       1.404   2.789   3.575  1.00  0.00            
+ATOM     38  C4  STa P   5       0.984   1.812   4.479  1.00  0.00            
+ATOM     39  C5  STa P   5       0.439   0.615   4.010  1.00  0.00            
+ATOM     40  C6  STa P   5       0.311   0.395   2.636  1.00  0.00            
+ATOM     41  C8  STa P   6      -0.890   0.921  -0.113  1.00  0.00            
+ATOM     42  C7  STa P   6      -1.781   1.434   1.017  1.00  0.00            
+ATOM     43  C1  STa P   6      -1.815   2.938   1.156  1.00  0.00            
+ATOM     44  C2  STa P   6      -1.159   3.789   0.248  1.00  0.00            
+ATOM     45  C3  STa P   6      -1.209   5.176   0.412  1.00  0.00            
+ATOM     46  C4  STa P   6      -1.913   5.727   1.484  1.00  0.00            
+ATOM     47  C5  STa P   6      -2.567   4.893   2.394  1.00  0.00            
+ATOM     48  C6  STa P   6      -2.517   3.505   2.230  1.00  0.00            
+ATOM     49  C8  STa P   7      -3.186   0.899   0.804  1.00  0.00            
+ATOM     50  C7  STa P   7      -3.197  -0.181  -0.275  1.00  0.00            
+ATOM     51  C1  STa P   7      -2.996   0.334  -1.681  1.00  0.00            
+ATOM     52  C2  STa P   7      -2.912   1.707  -1.971  1.00  0.00            
+ATOM     53  C3  STa P   7      -2.721   2.145  -3.284  1.00  0.00            
+ATOM     54  C4  STa P   7      -2.611   1.217  -4.321  1.00  0.00            
+ATOM     55  C5  STa P   7      -2.691  -0.151  -4.046  1.00  0.00            
+ATOM     56  C6  STa P   7      -2.882  -0.589  -2.732  1.00  0.00            
+ATOM     57  C8  STa P   8      -4.507  -0.943  -0.182  1.00  0.00            
+ATOM     58  C7  STa P   8      -4.265  -2.384   0.263  1.00  0.00            
+ATOM     59  C1  STa P   8      -3.629  -3.266  -0.785  1.00  0.00            
+ATOM     60  C2  STa P   8      -3.381  -2.814  -2.094  1.00  0.00            
+ATOM     61  C3  STa P   8      -2.786  -3.659  -3.035  1.00  0.00            
+ATOM     62  C4  STa P   8      -2.432  -4.962  -2.680  1.00  0.00            
+ATOM     63  C5  STa P   8      -2.671  -5.422  -1.382  1.00  0.00            
+ATOM     64  C6  STa P   8      -3.267  -4.578  -0.441  1.00  0.00            
+ATOM     65  C8  STa P   9      -5.588  -2.979   0.711  1.00  0.00            
+ATOM     66  C7  STa P   9      -6.750  -2.063   0.334  1.00  0.00            
+ATOM     67  C1  STa P   9      -6.845  -0.799   1.156  1.00  0.00            
+ATOM     68  C2  STa P   9      -5.991  -0.547   2.244  1.00  0.00            
+ATOM     69  C3  STa P   9      -6.107   0.636   2.978  1.00  0.00            
+ATOM     70  C4  STa P   9      -7.074   1.582   2.632  1.00  0.00            
+ATOM     71  C5  STa P   9      -7.927   1.345   1.552  1.00  0.00            
+ATOM     72  C6  STa P   9      -7.812   0.161   0.817  1.00  0.00            
+ATOM     73  C8  STa P  10      -8.043  -2.852   0.442  1.00  0.00            
+ATOM     74  C7  STa P  10      -9.049  -2.390  -0.609  1.00  0.00            
+ATOM     75  C1  STa P  10      -9.656  -1.032  -0.343  1.00  0.00            
+ATOM     76  C2  STa P  10      -9.387  -0.309   0.832  1.00  0.00            
+ATOM     77  C3  STa P  10      -9.964   0.947   1.041  1.00  0.00            
+ATOM     78  C4  STa P  10     -10.814   1.494   0.077  1.00  0.00            
+ATOM     79  C5  STa P  10     -11.087   0.786  -1.096  1.00  0.00            
+ATOM     80  C6  STa P  10     -10.510  -0.470  -1.305  1.00  0.00            
+CONECT    1    2
+CONECT    2    9    1    3
+CONECT    3    2    4    8
+CONECT    4    3    5
+CONECT    5    4    6
+CONECT    6    5    7
+CONECT    7    6    8
+CONECT    8    7    3
+CONECT    9    2   10
+CONECT   10   17    9   11
+CONECT   11   10   12   16
+CONECT   12   11   13
+CONECT   13   12   14
+CONECT   14   13   15
+CONECT   15   14   16
+CONECT   16   15   11
+CONECT   17   10   18
+CONECT   18   25   17   19
+CONECT   19   18   20   24
+CONECT   20   19   21
+CONECT   21   20   22
+CONECT   22   21   23
+CONECT   23   22   24
+CONECT   24   23   19
+CONECT   25   18   26
+CONECT   26   33   25   27
+CONECT   27   26   28   32
+CONECT   28   27   29
+CONECT   29   28   30
+CONECT   30   29   31
+CONECT   31   30   32
+CONECT   32   31   27
+CONECT   33   26   34
+CONECT   34   41   33   35
+CONECT   35   34   36   40
+CONECT   36   35   37
+CONECT   37   36   38
+CONECT   38   37   39
+CONECT   39   38   40
+CONECT   40   39   35
+CONECT   41   34   42
+CONECT   42   49   41   43
+CONECT   43   42   44   48
+CONECT   44   43   45
+CONECT   45   44   46
+CONECT   46   45   47
+CONECT   47   46   48
+CONECT   48   47   43
+CONECT   49   42   50
+CONECT   50   57   49   51
+CONECT   51   50   52   56
+CONECT   52   51   53
+CONECT   53   52   54
+CONECT   54   53   55
+CONECT   55   54   56
+CONECT   56   55   51
+CONECT   57   50   58
+CONECT   58   65   57   59
+CONECT   59   58   60   64
+CONECT   60   59   61
+CONECT   61   60   62
+CONECT   62   61   63
+CONECT   63   62   64
+CONECT   64   63   59
+CONECT   65   58   66
+CONECT   66   73   65   67
+CONECT   67   66   68   72
+CONECT   68   67   69
+CONECT   69   68   70
+CONECT   70   69   71
+CONECT   71   70   72
+CONECT   72   71   67
+CONECT   73   66   74
+CONECT   74   73   75
+CONECT   75   74   76   80
+CONECT   76   75   77
+CONECT   77   76   78
+CONECT   78   77   79
+CONECT   79   78   80
+CONECT   80   79   75
