@@ -1,0 +1,97 @@
+<ForceField>
+<!-- TRAPPE-UA Siepmann 2004 -->
+  
+  <AtomTypes>
+    <Type name="CH3(sp3)" class="Csp3" element="C" mass="15.034"/>
+    <Type name="CH2(sp3)" class="Csp3" element="C" mass="14.026"/>
+    <Type name="CH(sp3)" class="Csp3" element="C" mass="13.018"/>
+    <Type name="CH(aro)" class="Caro" element="C" mass="13.018"/>
+    <Type name="C(aro)" class="Caro" element="C" mass="12.010"/>
+  </AtomTypes>
+  
+  <Residues>
+    <Residue name="BEN">
+      <Atom name="C1" type="CH(aro)"/>
+      <Atom name="C2" type="CH(aro)"/>
+      <Atom name="C3" type="CH(aro)"/>
+      <Atom name="C4" type="CH(aro)"/>
+      <Atom name="C5" type="CH(aro)"/>
+      <Atom name="C6" type="CH(aro)"/>
+      
+      <Bond atomName1="C1" atomName2="C2"/>
+      <Bond atomName1="C2" atomName2="C3"/>
+      <Bond atomName1="C3" atomName2="C4"/>
+      <Bond atomName1="C4" atomName2="C5"/>
+      <Bond atomName1="C5" atomName2="C6"/>
+      <Bond atomName1="C6" atomName2="C1"/>
+
+    </Residue>
+  </Residues>
+  
+  <Patches>
+    <!--Patch for Poly-ParaMethyl-Styrene-->
+    <Patch name="PpmS">
+      <AddAtom name="C9" type="CH3(sp3)"/>
+      <ChangeAtom name="C6" type="C(aro)"/>
+      <AddBond atomName1="C6" atomName2="C9"/>
+    </Patch>    
+  </Patches>
+  
+  <HarmonicBondForce>
+    <Bond class1="Csp3" class2="Csp3" length="0.154" k="316812.48"/>
+    <Bond type1="CH(sp3)" type2="C(aro)" length="0.151" k="316812.48"/>
+    <Bond type1="CH2(sp3)" type2="C(aro)" length="0.151" k="316812.48"/>
+    <Bond class1="Caro" class2="Caro" length="0.140" k="316812.48"/>
+  </HarmonicBondForce>
+
+  <HarmonicAngleForce>
+    <Angle class1="Csp3" class2="Csp3" class3="Csp3" angle="1.954768762" k="520."/>
+    <Angle typ1="CH(sp3)" type2="CH2(sp3)" type3="CH(sp3)" angle="1.989675347" k="520."/>
+    <Angle class1="Caro" class2="Caro" class3="Caro" angle="2.094395102" k="1000."/>
+    <Angle type1="CH(aro)" type2="C(aro)" type3="CH(sp3)" angle="2.094395102" k="575.7184"/>
+  </HarmonicAngleForce>    
+  
+  <!--PeriodicTorsionForce>
+
+    <Proper class1="Caro" class2="Caro" class3="Caro" class4="Caro" 
+            k1="15.167" periodicity1="2" phase1="3.141592653589793"/>
+    
+    <Proper class1="Csp3" class2="Csp3" class3="Csp3" class4="Csp3" 
+            k1="0." periodicity1="0" phase1="0"
+            k2="2.952" periodicity2="1" phase2="0."
+            k3="-0.567" periodicity3="2" phase3="3.141592654"
+            k4="6.579" periodicity4="3" phase4="0"/>
+ 
+  </PeriodicTorsionForce-->
+  
+  <!--NonbondedForce coulomb14scale="0.5" lj14scale="0.">
+    <Atom type="CH3(sp3)" charge="0." sigma="0.375" epsilon="0.8159"/>
+    <Atom type="CH2(sp3)" charge="0." sigma="0.395" epsilon="0.3828"/>
+    <Atom type="CH(sp3)" charge="0." sigma="0.4650" epsilon="0.0831"/>
+    <Atom type="CH(aro)" charge="0." sigma="0.3695" epsilon="0.4197"/>
+    <Atom type="C(aro)" charge="0." sigma="0.37000" epsilon="0.2494"/>
+  </NonbondedForce-->
+  
+  <NonbondedForce coulomb14scale="0.5" lj14scale="0.">
+    <Atom type="CH3(sp3)" charge="0." sigma="0.375" epsilon="0."/>
+    <Atom type="CH2(sp3)" charge="0." sigma="0.395" epsilon="0."/>
+    <Atom type="CH(sp3)" charge="0." sigma="0.4650" epsilon="0."/>
+    <Atom type="CH(aro)" charge="0." sigma="0.3695" epsilon="0.4199"/>
+    <Atom type="C(aro)" charge="0." sigma="0.37000" epsilon="0."/>
+  </NonbondedForce>
+  
+  <CustomTorsionForce energy="scale*0.5*k*(theta-phase)^2">
+    <GlobalParameter name="scale" defaultValue="1"/>
+    <PerTorsionParameter name="k"/>
+    <PerTorsionParameter name="phase"/>
+
+    <Proper class1="Caro" class2="Caro" class3="Caro" class4="Caro" 
+                phase="0." k="167.4"/>
+    <Improper type1="C(aro)" class2="Caro" class3="Caro" class4="Csp3"
+                phase="0."  k="334.8"/>
+    <Improper class1="Csp3" class2="Caro" class3="Csp3" class4="Csp3"
+                phase="0.615403094"  k="334.8"/>
+  
+  </CustomTorsionForce>
+  
+</ForceField>
