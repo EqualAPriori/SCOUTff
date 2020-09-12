@@ -1,0 +1,2 @@
+polystyrene/PS10_a1.pdb	10
+polystyrene/PS10_a2.pdb	10
