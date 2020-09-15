@@ -124,7 +124,7 @@ output {}\n""".format(pdbMix)
 # === Set up short simulation to equilibrate/pack ===
 pressure        = 1.0  # bar
 temperature     = 473. # kelvin
-barostatfreq    = 25.
+barostatfreq    = 25
 box_L            = 10.  #nm
 run_npt         = True
 use_gpu         = True
@@ -150,7 +150,7 @@ system = forcefield.createSystem(top,
 
 
 integrator = mm.LangevinIntegrator(temperature*unit.kelvin, 1./unit.picosecond, 0.002*unit.picoseconds)
-#barostat = mm.MonteCarloBarostat( pressure*unit.bar, temperature*unit.kelvin, barostatfreq )
+barostat = mm.MonteCarloBarostat( pressure*unit.bar, temperature*unit.kelvin, barostatfreq )
 #barostat = mm.MonteCarloBarostat( pressure, temperature, barostatfreq )
 #if run_npt:
 #    system.addForce(barostat)
@@ -159,7 +159,7 @@ if use_gpu:
     platform = mm.Platform.getPlatformByName('OpenCL')
     properties = {'DeviceIndex':'1', 'Precision':'mixed'}
 else:
-    platform = Platform.getPlatformByName('CPU')
+    platform = mm.Platform.getPlatformByName('CPU')
     properties = {'Threads': '1'}
 
 simulation = app.Simulation( top, system, integrator, platform, properties )
