@@ -25,7 +25,8 @@ import simtk.openmm as mm
 import numpy as np
 import argparse as ap
 import time
-
+import os
+from subprocess import call
 #def molpair(arg):
 #    # For simplity, assume arg is a pair of integers separated by a comma. 
 #    return [arg[0], int(arg[1])]
@@ -52,9 +53,13 @@ else:
     sys_descrip = [ (entry[0], int(entry[1])) for entry in args.molpair ]
 
 sys = []
+nMols = []
+chainPDBs = []
 for entry in sys_descrip:
     pdb = app.PDBFile('{}{}'.format(args.lib,entry[0]))
     sys.append( (pdb.topology, entry[1]) )
+    chainPDBs.append(os.path.join(args.lib,entry[0]))
+    nMols.append(entry[1])
 
 #ff_list = ['TrappeUA_Styrene_Gromos.xml','tip4pew.xml']
 ff_list = args.fflist
@@ -85,10 +90,36 @@ print(top)
 
 
 # === Packmol ===
+def PackMol(nMols, chainPDBs, x, y, z, pdbMix = 'initial.pdb', logFile = 'packmol.log',mixFile = 'mix.inp'): 
+    """nMols: list of number of molecules for each species
+    chainPDBs: list of pdbs of each species
+    x,y,z: box dimensions in nm"""
+    #convert to angstrom and subtrac 1 angstrom
+    x,y,z = (x*10., y*10., z*10.)
+    s = """tolerance 2.0
+filetype pdb
+output {}\n""".format(pdbMix)
 
+    for i, nMol in enumerate(nMols):
+        if nMol > 0:
+            s += """structure {pdb}
+\tnumber {n}
+\tresnumbers 2
+\tinside box 1 1 1 {x} {y} {z}
+\tend structure\n""".format(n = nMol, pdb=chainPDBs[i], x=x-1, y=y-1, z=z-1)
+    file = open(mixFile,'w')
+    file.write(s)
+    file.close()
 
-
-out_pdb_filename = ''
+    print('Packing molecules ...')
+    os.system('packmol < {} > {}'.format(mixFile, logFile))
+    finished = False
+    while not finished:
+        f = open(logFile,'r')
+        if 'Success' in f.read():
+            finished = True
+        time.sleep(1) 
+    return pdbMix
 
 # === Set up short simulation to equilibrate/pack ===
 pressure        = 1.0  # bar
@@ -134,9 +165,10 @@ else:
 simulation = app.Simulation( top, system, integrator, platform, properties )
 
 #UPDATE to use packmol positions
-#sys_pdb = app.PDBFile(out_pdb_filename)
-#positions = sys_pdb.positions
-positions = np.random.random((top.getNumAtoms(),3))*box_L
+out_pdb_filename = PackMol(nMols, chainPDBs, box_L, box_L, box_L) 
+sys_pdb = app.PDBFile(out_pdb_filename)
+positions = sys_pdb.positions
+#positions = np.random.random((top.getNumAtoms(),3))*box_L
 
 simulation.context.setPositions(positions)
 app.pdbfile.PDBFile.writeModel(simulation.topology,positions,open('initial.pdb','w'))
