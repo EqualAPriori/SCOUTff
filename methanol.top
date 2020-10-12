@@ -1,0 +1,79 @@
+;
+;   File methanol.top  was generated
+;   By user: kshen (535)
+;   On host: zin.cnsi.ucsb.edu
+;   At date: Wed. July  3 18:09:24 2019
+;
+;   This is a standalone topology file
+;
+;   Created by:
+;   ParmEd:       amber2gro.py, VERSION 2.7.4
+;   Executable:   amber2gro.py
+;   Library dir:  /usr/local/gromacs/share/gromacs/top
+;   Command line:
+;     ../amber2gro.py methanol
+;
+
+[ defaults ]
+; nbfunc        comb-rule       gen-pairs       fudgeLJ fudgeQQ
+1               2               yes             0.5     0.833333
+
+[ atomtypes ]
+; name    at.num    mass    charge ptype  sigma      epsilon
+c3             6   12.01000    0.000000  A      0.339771      0.451035
+h1             1    1.00800    0.000000  A        0.2422     0.0870272
+oh             8   16.00000    0.000000  A      0.324287      0.389112
+ho             1    1.00800    0.000000  A     0.0537925     0.0196648
+
+
+[ moleculetype ]
+; Name            nrexcl
+MOH          3
+
+[ atoms ]
+;   nr       type  resnr residue  atom   cgnr    charge       mass  typeB    chargeB      massB
+; residue    1 MOH rtp MOH q 0.0
+     1         c3      1     MOH     C      1  0.1410961  12.010000 ;   0.1410961
+     2         h1      1     MOH     H      2  0.0346997   1.008000 ;   0.1757959
+     3         h1      1     MOH    H1      3  0.0346997   1.008000 ;   0.2104956
+     4         h1      1     MOH    H2      4  0.0346997   1.008000 ;   0.2451953
+     5         oh      1     MOH     O      5 -0.7239791  16.000000 ;  -0.4787838
+     6         ho      1     MOH    H3      6  0.4787838   1.008000 ;   0.0000000
+
+[ bonds ]
+;    ai     aj funct         c0         c1         c2         c3
+      1      5     1   0.14230 245517.120000
+      1      2     1   0.10970 314569.856000
+      1      3     1   0.10970 314569.856000
+      1      4     1   0.10970 314569.856000
+      5      6     1   0.09730 471545.168000
+
+[ pairs ]
+;    ai     aj funct         c0         c1         c2         c3
+      2      6     1
+      3      6     1
+      4      6     1
+
+[ angles ]
+;    ai     aj     ak funct         c0         c1         c2         c3
+      1      5      6     1   107.26005 410.257936
+      2      1      3     1   108.46005 324.695136
+      2      1      4     1   108.46005 324.695136
+      2      1      5     1   110.26005 523.334720
+      3      1      4     1   108.46005 324.695136
+      3      1      5     1   110.26005 523.334720
+      4      1      5     1   110.26005 523.334720
+
+[ dihedrals ]
+;    ai     aj     ak     al funct         c0         c1         c2         c3         c4         c5
+      2      1      5      6     1  0.00000  0.47279  3
+      3      1      5      6     1  0.00000  0.47279  3
+      4      1      5      6     1  0.00000  0.47279  3
+
+[ system ]
+; Name
+Generic title
+
+[ molecules ]
+; Compound       #mols
+MOH                  1
