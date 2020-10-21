@@ -1,0 +1,5 @@
+S ../database/styrene.pdb
+M ../database/pmstyrene.pdb
+2 ../database/12butadiene.pdb
+4 ../database/14butadiene.pdb
+

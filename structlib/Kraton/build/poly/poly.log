@@ -1,0 +1,50 @@
+>                 Assemble v1.0                     <
+> (c) 2014, Matteo Degiacomi and Valentina Erastova <
+
+> Preparing molecules database...
+>> loading PDB /home/mnguyen/bin/SCOUTff/structlib/Kraton/build/../database/styrene.pdb
+>> loading PDB /home/mnguyen/bin/SCOUTff/structlib/Kraton/build/../database/pmstyrene.pdb
+>> loading PDB /home/mnguyen/bin/SCOUTff/structlib/Kraton/build/../database/12butadiene.pdb
+>> loading PDB /home/mnguyen/bin/SCOUTff/structlib/Kraton/build/../database/14butadiene.pdb
+
+> generating polymer pS20...
+>> sequence: SSSSSSSSSSSSSSSSSSSS
+>> writing PDB file pS20.pdb
+>> Detected connectivity in monomer PDB files, writing out connectivity to PDB<<
+
+> generating polymer pmS20...
+>> sequence: MMMMMMMMMMMMMMMMMMMM
+>> writing PDB file pmS20.pdb
+>> Detected connectivity in monomer PDB files, writing out connectivity to PDB<<
+
+> generating polymer 14pB20...
+>> sequence: 44444444444444444444
+>> writing PDB file 14pB20.pdb
+>> Detected connectivity in monomer PDB files, writing out connectivity to PDB<<
+
+> generating polymer 12pB20...
+>> sequence: 22222222222222222222
+>> writing PDB file 12pB20.pdb
+>> Detected connectivity in monomer PDB files, writing out connectivity to PDB<<
+
+> generating polymer pS20-pmS20...
+>> sequence: SSSSSSSSSSSSSSSSSSSSMMMMMMMMMMMMMMMMMMMM
+>> writing PDB file pS20-pmS20.pdb
+>> Detected connectivity in monomer PDB files, writing out connectivity to PDB<<
+
+> generating polymer pS20-14pB20...
+>> sequence: SSSSSSSSSSSSSSSSSSSS44444444444444444444
+>> writing PDB file pS20-14pB20.pdb
+>> Detected connectivity in monomer PDB files, writing out connectivity to PDB<<
+
+> generating polymer pS20-12pB20...
+>> sequence: SSSSSSSSSSSSSSSSSSSS22222222222222222222
+>> writing PDB file pS20-12pB20.pdb
+>> Detected connectivity in monomer PDB files, writing out connectivity to PDB<<
+
+> generating polymer 12pB20-14pB20...
+>> sequence: 2222222222222222222244444444444444444444
+>> writing PDB file 12pB20-14pB20.pdb
+>> Detected connectivity in monomer PDB files, writing out connectivity to PDB<<
+
+> All done! Thank you for using Assemble! <
