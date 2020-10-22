@@ -1,0 +1,3 @@
+python make_topology.py -L 10. -pkmldir ~/openmm/Structures/packmol/ -structlib ./ -m 14pB20.pdb 10 -ff TrappeUA_Butadiene_Gromos.xml 
+python run.py -L 10.0 --fflist ./TrappeUA_Butadiene_Gromos.xml
+
