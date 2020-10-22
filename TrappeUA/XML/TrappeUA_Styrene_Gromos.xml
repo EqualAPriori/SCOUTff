@@ -160,7 +160,7 @@
     <Atom type="C(aro)" charge="0." sigma="0.37000" epsilon="0.2494"/>
   </NonbondedForce>
   
-  <CustomTorsionForce energy="scale*0.5*k*(theta-phase)^2">
+  <CustomTorsionForce energy="scale*0.5*k*(abs(theta)-phase)^2">
     <!-- Used to enforce a planar geometry on benzene and a connecting carbon.
             Taken from Kurt Kremer Macromolecules 2006. Hierarchical Modeling of Polystyrene...-->
     <GlobalParameter name="scale" defaultValue="1"/>
