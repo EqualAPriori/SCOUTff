@@ -1,0 +1,12 @@
+LIMIT HEAD 1
+LIMIT TAIL 4
+ATOM      1  C1  14B     1      -5.359   0.228  -0.004  1.00  0.00           C  
+ATOM      2  C2  14B     1      -4.043   0.941  -0.011  1.00  0.00          Ct  
+ATOM      3  C3  14B     1      -2.890   0.261   0.011  1.00  0.00          Ct  
+ATOM      4  C4  14B     1      -1.573   0.974   0.004  1.00  0.00           C  
+CONECT    1    2                                                     
+CONECT    2    1    3                                                                                                      
+CONECT    3    2    4                                                 
+CONECT    4    3     
+MASTER        0    0    0    0    0    0    0    0    6    0    6    0
+END

@@ -1,0 +1,166 @@
+<ForceField>
+<!-- TRAPPE-UA Siepmann 2004 -->
+  
+  <AtomTypes>
+    <Type name="CH3(sp3)" class="Csp3" element="C" mass="15.034"/>
+    <Type name="CH2(sp3)" class="Csp3" element="C" mass="14.026"/>
+    <Type name="CH2(sp2)" class="Csp2" element="C" mass="14.026"/>
+    <Type name="CH(sp3)" class="Csp3" element="C" mass="13.018"/>
+    <!-- trans -->
+    <Type name="CHt(sp2)" class="Csp2" element="CT" mass="13.018"/>
+    <!-- cis   -->
+    <Type name="CHc(sp2)" class="Csp2" element="CC" mass="13.018"/>
+    <Type name="CH(aro)" class="Caro" element="C" mass="13.018"/>
+    <Type name="C(aro)" class="Caro" element="C" mass="12.010"/>
+  </AtomTypes>
+  
+  <Residues> 
+    <!-- 1,4 polybutadiene-->
+    <Residue name="B1">
+      <Atom name="C1" type="CH2(sp3)"/>
+      <Atom name="C2" type="CHt(sp2)"/>
+      <Atom name="C3" type="CHt(sp2)"/>
+      <Atom name="C4" type="CH2(sp3)"/>
+      
+      <Bond atomName1="C1" atomName2="C2"/>
+      <Bond atomName1="C2" atomName2="C3"/>
+      <Bond atomName1="C3" atomName2="C4"/>
+    </Residue>
+ 
+    <Residue name="Bmid">
+      <AllowPatch name="cis"/>
+      <AllowPatch name="sat"/>
+      <Atom name="C1" type="CH2(sp3)"/>
+      <Atom name="C2" type="CHt(sp2)"/>
+      <Atom name="C3" type="CHt(sp2)"/>
+      <Atom name="C4" type="CH2(sp3)"/>
+      
+      <Bond atomName1="C1" atomName2="C2"/>
+      <Bond atomName1="C2" atomName2="C3"/>
+      <Bond atomName1="C3" atomName2="C4"/>
+
+      <ExternalBond atomName="C1"/>
+      <ExternalBond atomName="C4"/>
+    </Residue>
+    
+    <Residue name="BBegin">
+      <AllowPatch name="cis"/>
+      <AllowPatch name="sat"/>
+      <Atom name="C1" type="CH3(sp3)"/>
+      <Atom name="C2" type="CHt(sp2)"/>
+      <Atom name="C3" type="CHt(sp2)"/>
+      <Atom name="C4" type="CH2(sp3)"/>
+      
+      <Bond atomName1="C1" atomName2="C2"/>
+      <Bond atomName1="C2" atomName2="C3"/>
+      <Bond atomName1="C3" atomName2="C4"/>
+
+      <ExternalBond atomName="C4"/>
+    </Residue>
+    
+  </Residues>
+  
+  <Patches>
+    
+    <!--Patch for cis 1,4 polybutadiene -->
+    <Patch name="cis">
+      <ChangeAtom name="C2" type="CHc(sp2)"/>
+      <ChangeAtom name="C3" type="CHc(sp2)"/>
+    </Patch> 
+    <!--Patch for saturated 1,4 polybutadiene -->
+    <Patch name="sat">
+      <ChangeAtom name="C2" type="CH2(sp3)"/>
+      <ChangeAtom name="C3" type="CH2(sp3)"/>
+    </Patch>    
+  
+  </Patches>
+  
+  <!--NJS Update force constant for CH(sp2)=CH(sp2)-->
+  <HarmonicBondForce>
+    <Bond class1="Csp3" class2="Csp3" length="0.154" k="316812.48"/>
+    <Bond class1="Csp3" class2="Csp2" length="0.154" k="316812.48"/>
+    <Bond class1="Csp2" class2="Csp2" length="0.133" k="316812.48"/>
+    <Bond type1="CH(sp3)" type2="C(aro)" length="0.151" k="316812.48"/>
+    <Bond type1="CH2(sp3)" type2="C(aro)" length="0.151" k="316812.48"/>
+    <Bond type1="CHt(sp2)" type2="CHt(sp2)" length="0.151" k="316812.48"/>
+    <Bond type1="CH2(sp3)" type2="CHt(sp2)" length="0.151" k="316812.48"/>
+    <Bond type1="CH3(sp3)" type2="C(aro)" length="0.151" k="316812.48"/>
+    <Bond class1="Caro" class2="Caro" length="0.140" k="316812.48"/>
+  </HarmonicBondForce>
+
+  <HarmonicAngleForce>
+    <Angle class1="Csp3" class2="Csp3" class3="Csp3" angle="1.989675347" k="520."/>
+    <Angle typ1="CH(sp3)" type2="CH2(sp3)" type3="CH(sp3)" angle="1.989675347" k="520."/>
+    <Angle class1="Csp2" class2="Csp2" class3="Csp3" angle="2.089159115" k="585.50"/>
+    <Angle class1="Csp2" class2="Csp3" class3="Csp3" angle="1.989675347" k="520."/>
+    <Angle class1="Caro" class2="Caro" class3="Caro" angle="2.094395102" k="1000."/>
+    <Angle class1="Csp3" class2="Caro" class3="Caro" angle="2.094395102" k="1000."/>
+  </HarmonicAngleForce>    
+  
+  <PeriodicTorsionForce>
+    
+    <!-- Csp3=CH2(sp3)-CH(sp3)-Csp3 -->        
+    <Proper class1="Csp3" type2="CH2(sp3)" type3="CH(sp3)" class4="Csp3" 
+            k1="-1.043714492" periodicity1="0" phase1="0"
+            k2="3.564659558" periodicity2="1" phase2="0."
+            k3="-0.929972644" periodicity3="2" phase3="3.141592654"
+            k4="3.66892292" periodicity4="3" phase4="0"/>
+            
+    <!-- CH(sp2)=CH(sp2)-CH2(sp3)-CH2(sp3) -->        
+    <Proper class1="Csp2" class2="Csp2" class3="Csp3" class4="Csp3" 
+            k1="2.862253756" periodicity1="0" phase1="0"
+            k2="0.718036992" periodicity2="1" phase2="0."
+            k3="-0.912678562" periodicity3="2" phase3="3.141592654"
+            k4="-2.346673929" periodicity4="3" phase4="0"/>
+            
+    <!-- CH(sp2)-CH2(sp3)-CH2(sp3)-CH(sp2) -->        
+    <Proper class1="Csp2" class2="Csp3" class3="Csp3" class4="Csp2" 
+            k1="0." periodicity1="0" phase1="0"
+            k2="0.718036992" periodicity2="1" phase2="0."
+            k3="-0.566963206" periodicity3="2" phase3="3.141592654"
+            k4="6.579400559" periodicity4="3" phase4="0"/>
+            
+    <!-- Csp3-Csp3-Csp3-Csp3 -->        
+    <Proper class1="Csp3" class2="Csp3" class3="Csp3" class4="Csp3" 
+            k1="0." periodicity1="0" phase1="0"
+            k2="2.951883663" periodicity2="1" phase2="0."
+            k3="-0.566963206" periodicity3="2" phase3="3.141592654"
+            k4="6.579400559" periodicity4="3" phase4="0"/>
+ 
+  </PeriodicTorsionForce>
+  
+  <NonbondedForce coulomb14scale="0.5" lj14scale="0.">
+    <Atom type="CH3(sp3)" charge="0." sigma="0.375" epsilon="0.8159"/>
+    <Atom type="CH2(sp3)" charge="0." sigma="0.395" epsilon="0.3828"/>
+    <Atom type="CH2(sp2)" charge="0." sigma="0.3675" epsilon="0.7067"/>
+    <Atom type="CH(sp3)" charge="0." sigma="0.4650" epsilon="0.0831"/>
+    <Atom type="CHt(sp2)" charge="0." sigma="0.3730" epsilon="0.3908"/>
+    <Atom type="CHc(sp2)" charge="0." sigma="0.3730" epsilon="0.3908"/>
+    <Atom type="CH(aro)" charge="0." sigma="0.3695" epsilon="0.4199"/>
+    <Atom type="C(aro)" charge="0." sigma="0.37000" epsilon="0.2494"/>
+  </NonbondedForce>
+  
+  <CustomTorsionForce energy="scale*0.5*k*(theta-phase)^2">
+    <!-- Used to enforce a planar geometry on benzene and a connecting carbon.
+            Taken from Kurt Kremer Macromolecules 2006. Hierarchical Modeling of Polystyrene...-->
+    <GlobalParameter name="scale" defaultValue="1"/>
+    <PerTorsionParameter name="k"/>
+    <PerTorsionParameter name="phase"/>
+
+    <Proper class1="Caro" class2="Caro" class3="Caro" class4="Caro" 
+                phase="0." k="167.4"/>
+    
+    <!-- trans 1,4-polybutadiene -->
+    <!-- Proper class1="Csp3" type2="CHt(sp2)" type3="CHt(sp2)" class4="Csp3" 
+                phase="3.141592654" k="222.8275982"/ -->
+                
+    <!-- cis 1,4-polybutadiene -->
+    <!-- Proper class1="Csp3" type2="CHc(sp2)" type3="CHc(sp2)" class4="Csp3" 
+                phase="0." k="206.1986729"/ -->
+                
+    <Improper type1="C(aro)" class2="Caro" class3="Caro" class4="Csp3"
+                phase="0."  k="167.4"/>    
+  
+  </CustomTorsionForce>
+  
+</ForceField>
