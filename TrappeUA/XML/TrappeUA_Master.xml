@@ -1,0 +1,5 @@
+<ForceField>
+ <Include file="TrappeUA_AtomTypes.xml"/>
+ <Include file="TrappeUA_Butadiene_Gromos.xml"/>
+ <Include file="TrappeUA_Styrene_Gromos.xml"/>
+</ForceField>

@@ -1,0 +1,15 @@
+<ForceField>
+<!-- TRAPPE-UA Siepmann 2004 -->
+  
+  <AtomTypes>   
+    <Type name="CH3(sp3)" class="Csp3" element="C" mass="15.034"/>
+    <Type name="CH2(sp3)" class="Csp3" element="C" mass="14.026"/>
+    <Type name="CH2(sp2)" class="Csp2" element="C" mass="14.026"/>
+    <Type name="CH(sp3)" class="Csp3" element="C" mass="13.018"/>
+    <!-- trans -->
+    <Type name="CHt(sp2)" class="Csp2" element="CT" mass="13.018"/>
+    <!-- cis   -->
+    <Type name="CHc(sp2)" class="Csp2" element="CC" mass="13.018"/>
+    <Type name="CH(aro)" class="Caro" element="C" mass="13.018"/>
+    <Type name="C(aro)" class="Caro" element="C" mass="12.010"/>
+  </AtomTypes>

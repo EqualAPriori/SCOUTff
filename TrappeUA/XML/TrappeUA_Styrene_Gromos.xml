@@ -1,14 +1,6 @@
 <ForceField>
 <!-- TRAPPE-UA Siepmann 2004 -->
-  
-  <AtomTypes>
-    <Type name="CH3(sp3)" class="Csp3" element="C" mass="15.034"/>
-    <Type name="CH2(sp3)" class="Csp3" element="C" mass="14.026"/>
-    <Type name="CH(sp3)" class="Csp3" element="C" mass="13.018"/>
-    <Type name="CH(aro)" class="Caro" element="C" mass="13.018"/>
-    <Type name="C(aro)" class="Caro" element="C" mass="12.010"/>
-  </AtomTypes>
-  
+   
   <Residues>
     <Residue name="BEN">
       <AllowPatch name="Toulene"/> 
