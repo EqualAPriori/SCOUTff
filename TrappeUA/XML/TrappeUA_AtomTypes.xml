@@ -13,3 +13,5 @@
     <Type name="CH(aro)" class="Caro" element="C" mass="13.018"/>
     <Type name="C(aro)" class="Caro" element="C" mass="12.010"/>
   </AtomTypes>
+  
+</ForceField>
