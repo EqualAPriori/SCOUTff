@@ -1,3 +1,7 @@
-python make_topology.py -L 10. -pkmldir ~/openmm/Structures/packmol/ -structlib ./ -m 14pB20.pdb 10 -ff TrappeUA_Butadiene_Gromos.xml 
-python run.py -L 10.0 --fflist ./TrappeUA_Butadiene_Gromos.xml
+#Example calls to make from this directory:
+python ../make_topology.py -L 10. -pkmldir ~/openmm/Structures/packmol/ -structlib ./ -m 14pBtrans20.pdb 10 -ff TrappeUA_Butadiene_Gromos.xml
+python ../run.py --fflist ./TrappeUA_Butadiene_Gromos.xml
+
+python ../make_topology.py -L 10. -pkmldir ~/openmm/Structures/packmol/ -structlib ./ -m 14pB20.pdb 10 -ff TrappeUA_sButadiene_Gromos.xml
+python ../run.py --fflist ./TrappeUA_sButadiene_Gromos.xml
 

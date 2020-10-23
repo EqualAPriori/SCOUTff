@@ -1,8 +1,8 @@
 REMARK generated with Assemble.py, by Matteo Degiacomi and Valentina Erastova, 2014-2018
 REMARK sequence: 44444444444444444444
 ATOM      1  C1  14B P   1     -38.472   1.376   1.793  1.00  0.00           C 
-ATOM      2  C2  14B P   1     -38.360   0.474   0.604  1.00  0.00          Ct  
-ATOM      3  C3  14B P   1     -37.188  -0.077   0.264  1.00  0.00          Ct  
+ATOM      2  C2  14B P   1     -38.360   0.474   0.604  1.00  0.00           C  
+ATOM      3  C3  14B P   1     -37.188  -0.077   0.264  1.00  0.00           C  
 ATOM      4  C4  14B P   1     -37.076  -0.980  -0.926  1.00  0.00           C 
 ATOM      5  C1  14B P   2     -35.547  -1.396  -1.221  1.00  0.00            
 ATOM      6  C2  14B P   2     -34.994  -2.343  -0.202  1.00  0.00            
