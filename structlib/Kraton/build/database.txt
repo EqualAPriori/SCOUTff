@@ -1,6 +1,9 @@
 S ../database/styrene.pdb
 M ../database/pmstyrene.pdb
-2 ../database/12butadiene.pdb
+
+B ../database/12butadiene.pdb
 C ../database/14butadieneCIS.pdb
 T ../database/14butadieneTRANS.pdb
-E ../database/ethylene.pdb
+
+2 ../database/s12butadiene.pdb
+4 ../database/s14butadiene.pdb
