@@ -27,6 +27,7 @@ import os
 from subprocess import call
 
 # === Simulation Options ===
+prefix = 'packing'
 pressure        = 1.0  # bar
 temperature     = 473. # kelvin
 barostatfreq    = 25
@@ -99,20 +100,18 @@ for ii,mol in enumerate(sys):
                 for a in enumerate(r.atoms()):
                     atom = top.addAtom(a[1].name, a[1].element, residue)
                     atoms_in_top.append(atom)
-                    print(atom)
+                    #print(atom)
         for bond in moltop.bonds():
             bi1,bi2 = bond[0].index, bond[1].index
             top.addBond( atoms_in_top[bi1], atoms_in_top[bi2] ) 
 
-print(top)
-
-#test = mm.openmm.XmlSerializer.serialize(top)
-#with open('top.xml','w') as f:
-#    f.write(test)
+#top_xml = mm.openmm.XmlSerializer.serialize(top)
+#with open('proposed_top.xml','w') as f:
+#    f.write(top_xml)
 
 
 # === Packmol ===
-def PackMol(nMols, chainPDBs, x, y, z, pdbMix = 'initial.pdb', logFile = 'packmol.log',mixFile = 'mix.inp'): 
+def PackMol(nMols, chainPDBs, x, y, z, pdbMix = '{}_packmol.pdb'.format(prefix), logFile = '{}_packmol.log'.format(prefix),mixFile = '{}_packmol.inp'.format(prefix)): 
     """nMols: list of number of molecules for each species
     chainPDBs: list of pdbs of each species
     x,y,z: box dimensions in nm"""
@@ -146,13 +145,17 @@ output {}\n""".format(pdbMix)
 # === Set up short simulation to equilibrate/pack ===
 forcefield = app.ForceField(*ff_list)
 unmatched_residues = forcefield.getUnmatchedResidues(top)
-print('Unmatched\n')
+print('\n=== Unmatched residues ===\n')
 print(unmatched_residues)
 
 
+print('\n=== Periodic Box ===')
 periodic_box_vectors = [[box_L,0.,0.],[0.,box_L,0.],[0.,0.,box_L]]
+print(periodic_box_vectors)
 top.setPeriodicBoxVectors(periodic_box_vectors*unit.nanometer)
 
+
+print('\n=== Making System ===')
 system = forcefield.createSystem(top, 
                                 nonbondedMethod = nonbonded_method,
                                 nonbondedCutoff = nonbonded_cutoff, 
@@ -184,7 +187,7 @@ positions = sys_pdb.positions
 
 
 simulation.context.setPositions(positions)
-app.pdbfile.PDBFile.writeModel(simulation.topology,positions,open('initial.pdb','w'))
+app.pdbfile.PDBFile.writeModel(simulation.topology,positions,open('{}_packmol.pdb'.format(prefix),'w'))
 simulation.context.setPeriodicBoxVectors(periodic_box_vectors[0],periodic_box_vectors[1],periodic_box_vectors[2]) # Set the periodic box vectors
 
 
@@ -192,17 +195,18 @@ simulation.context.applyConstraints(1e-8)
 
 
 # === Minimize Energy ===
+print('\n=== Minimizing ===')
 time_start = time.time()
 print('pre minimization potential energy: {} \n'.format(simulation.context.getState(getEnergy=True).getPotentialEnergy()))
 simulation.minimizeEnergy(tolerance=0.01*unit.kilojoules_per_mole,maxIterations=1000000)
 print('post minimization potential energy: {} \n'.format(simulation.context.getState(getEnergy=True).getPotentialEnergy()))
 time_end = time.time()
 print("done with minimization in {} minutes\n".format((time_end-time_start)/60.))
-app.pdbfile.PDBFile.writeModel(simulation.topology,positions,open('post_minimization.pdb','w'))
+app.pdbfile.PDBFile.writeModel(simulation.topology,positions,open('{}_post_minimization.pdb'.format(prefix),'w'))
 
 
 # === Setup Run ===
-simulation.reporters.append(app.statedatareporter.StateDataReporter('thermo.out', thermo_report_freq, step=True, potentialEnergy=True, kineticEnergy=True, totalEnergy=True, temperature=True, volume=True, density=True, speed=True))
+simulation.reporters.append(app.statedatareporter.StateDataReporter('{}_thermo.out'.format(prefix), thermo_report_freq, step=True, potentialEnergy=True, kineticEnergy=True, totalEnergy=True, temperature=True, volume=True, density=True, speed=True))
 
 # === Equilibration ===
 time_start = time.time()
@@ -210,20 +214,24 @@ simulation.step(equilibration_steps)
 positions = simulation.context.getState(getPositions=True).getPositions()       
 time_end = time.time()
 print("done with equilibration in {} minutes\n".format((time_end-time_start)/60.))
-app.pdbfile.PDBFile.writeModel(simulation.topology,positions,open('post_equilibration.pdb','w'))
+app.pdbfile.PDBFile.writeModel(simulation.topology,positions,open('{}_post_equilibration.pdb'.format(prefix),'w'))
 
 # === Run and save output, with connectivity ===
 time_start = time.time()
-simulation.reporters.append(app.dcdreporter.DCDReporter('output.dcd', dcd_report_freq))
+simulation.reporters.append(app.dcdreporter.DCDReporter('{}_output.dcd'.format(prefix), dcd_report_freq))
 simulation.step(production_steps)
 positions = simulation.context.getState(getPositions=True).getPositions()       
+box = simulation.context.getState().getPeriodicBoxVectors(asNumpy=True)
 time_end = time.time()
 print("done with production in {} minutes\n".format((time_end-time_start)/60.))
-app.pdbfile.PDBFile.writeModel(simulation.topology,positions,open('post_production.pdb','w'))
 
-app.pdbfile.PDBFile.writeHeader(simulation.topology,open('proposed_initial_packing.pdb','w'))
-app.pdbfile.PDBFile.writeModel(simulation.topology,positions,open('proposed_initial_packing.pdb','a'))
-app.pdbfile.PDBFile.writeFooter(simulation.topology,open('proposed_initial_packing.pdb','a'))
+
+simulation.topology.setPeriodicBoxVectors( simulation.context.getState().getPeriodicBoxVectors() )
+app.pdbfile.PDBFile.writeHeader(simulation.topology,open('{}_proposal.pdb'.format(prefix),'w'))
+app.pdbfile.PDBFile.writeModel(simulation.topology,positions,open('{}_proposal.pdb'.format(prefix),'a'))
+app.pdbfile.PDBFile.writeFooter(simulation.topology,open('{}_proposal.pdb'.format(prefix),'a'))
+#np.savetxt( 'proposed_box.txt', np.vstack([np.diag(box),box] ) )
+np.savetxt( '{}_box.txt'.format(prefix), box )
 
 
 
