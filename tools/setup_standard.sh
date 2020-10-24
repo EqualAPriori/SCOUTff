@@ -51,9 +51,14 @@ cd $mydir
     #auto-detect forcefield // make sure forcefields are not redundant (e.g. re-defining atom types)
 
     #suggested commands
+    sed -e "s/__label__/$mydir/" < ${toollib}podsubmit_template.sh > ./podsubmit.sh
+
     echo "# Suggested commands" > z.commands
     echo "python ${toollib}make_topology.py -L $L -pkml $pkmldir -structlib $structlib -m $polymer $npoly -ff ${fflib}TrappeUA_Master.xml" >> z.commands
+    echo "python ${toollib}make_topology.py -L $L -pkml $pkmldir -structlib $structlib -m $polymer $npoly -ff ${fflib}TrappeUA_Master.xml" >> podsubmit.sh
     echo "" >> z.commands
     echo "python ./run.py -ff ${fflib}TrappeUA_Master.xml" >> z.commands
+    echo "python ./run.py -ff ${fflib}TrappeUA_Master.xml" >> podsubmit.sh
+
 
 cd ..
