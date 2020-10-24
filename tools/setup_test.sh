@@ -1,7 +1,7 @@
 #!/bin/bash
 #Setup a one-species system, with standard parameters
 #Example call:
-#   ./setup_test.sh ~/openmm/Structures/packmol 10.0 14pBtrans20.pdb 10
+#   ./setup_test.sh /home/kshen/mylib/packmol 10.0 14pBtrans20.pdb 10
 
 # Get directory where SCOUTff is and some shortcuts
 thisScriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
@@ -46,6 +46,7 @@ cd $mydir
     sed -i "s/__ANNEALTIME__/$ANNEALTIME/g" run.py
     sed -i "s/__EQTIME__/$EQTIME/g" run.py
     sed -i "s/__PRODUCTIONTIME__/$PRODUCTIONTIME/g" run.py
+    #sed -i "0,/use_gpu.*/s/\(use_gpu\).*/\1 = false/" run.py
 
 
     #auto-detect forcefield // make sure forcefields are not redundant (e.g. re-defining atom types)

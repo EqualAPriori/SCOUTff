@@ -1,7 +1,7 @@
 #!/bin/bash
 #Setup a one-species system, with standard parameters
 #Example call:
-#   ./setup_standard.sh ~/openmm/Structures/packmol 16.0 14pBtrans20.pdb 150 448.15 00
+#   ./setup_standard.sh /home/kshen/mylib/packmol 16.0 14pBtrans20.pdb 150 448.15 00
 
 # Get directory where SCOUTff is and some shortcuts
 thisScriptDir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
