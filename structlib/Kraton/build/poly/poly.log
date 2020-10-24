@@ -7,16 +7,57 @@
 >> loading PDB /home/mnguyen/bin/SCOUTff/structlib/Kraton/build/../database/12butadiene.pdb
 >> loading PDB /home/mnguyen/bin/SCOUTff/structlib/Kraton/build/../database/14butadieneCIS.pdb
 >> loading PDB /home/mnguyen/bin/SCOUTff/structlib/Kraton/build/../database/14butadieneTRANS.pdb
->> loading PDB /home/mnguyen/bin/SCOUTff/structlib/Kraton/build/../database/ethylene.pdb
+>> loading PDB /home/mnguyen/bin/SCOUTff/structlib/Kraton/build/../database/s12butadiene.pdb
+>> loading PDB /home/mnguyen/bin/SCOUTff/structlib/Kraton/build/../database/s14butadiene.pdb
 
 > generating polymer pS20...
 >> sequence: SSSSSSSSSSSSSSSSSSSS
 >> writing PDB file pS20.pdb
 >> Detected connectivity in monomer PDB files, writing out connectivity to PDB<<
 
+> generating polymer pS40...
+>> sequence: SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
+>> writing PDB file pS40.pdb
+>> Detected connectivity in monomer PDB files, writing out connectivity to PDB<<
+
+> generating polymer pS60...
+>> sequence: SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS
+>> writing PDB file pS60.pdb
+>> Detected connectivity in monomer PDB files, writing out connectivity to PDB<<
+
 > generating polymer pmS20...
 >> sequence: MMMMMMMMMMMMMMMMMMMM
 >> writing PDB file pmS20.pdb
+>> Detected connectivity in monomer PDB files, writing out connectivity to PDB<<
+
+> generating polymer s12pB20...
+>> sequence: 22222222222222222222
+>> writing PDB file s12pB20.pdb
+>> Detected connectivity in monomer PDB files, writing out connectivity to PDB<<
+
+> generating polymer s12pB40...
+>> sequence: 2222222222222222222222222222222222222222
+>> writing PDB file s12pB40.pdb
+>> Detected connectivity in monomer PDB files, writing out connectivity to PDB<<
+
+> generating polymer s12pB60...
+>> sequence: 222222222222222222222222222222222222222222222222222222222222
+>> writing PDB file s12pB60.pdb
+>> Detected connectivity in monomer PDB files, writing out connectivity to PDB<<
+
+> generating polymer s14pB20...
+>> sequence: 44444444444444444444
+>> writing PDB file s14pB20.pdb
+>> Detected connectivity in monomer PDB files, writing out connectivity to PDB<<
+
+> generating polymer s14pB40...
+>> sequence: 4444444444444444444444444444444444444444
+>> writing PDB file s14pB40.pdb
+>> Detected connectivity in monomer PDB files, writing out connectivity to PDB<<
+
+> generating polymer s14pB60...
+>> sequence: 444444444444444444444444444444444444444444444444444444444444
+>> writing PDB file s14pB60.pdb
 >> Detected connectivity in monomer PDB files, writing out connectivity to PDB<<
 
 > generating polymer 14pBcis20...
@@ -29,13 +70,8 @@
 >> writing PDB file 14pBtrans20.pdb
 >> Detected connectivity in monomer PDB files, writing out connectivity to PDB<<
 
-> generating polymer pE40...
->> sequence: EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
->> writing PDB file pE40.pdb
->> Detected connectivity in monomer PDB files, writing out connectivity to PDB<<
-
 > generating polymer 12pB20...
->> sequence: 22222222222222222222
+>> sequence: BBBBBBBBBBBBBBBBBBBB
 >> writing PDB file 12pB20.pdb
 >> Detected connectivity in monomer PDB files, writing out connectivity to PDB<<
 
@@ -44,24 +80,24 @@
 >> writing PDB file pS20-pmS20.pdb
 >> Detected connectivity in monomer PDB files, writing out connectivity to PDB<<
 
-> generating polymer pS20-pE40...
->> sequence: SSSSSSSSSSSSSSSSSSSSEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
->> writing PDB file pS20-pE40.pdb
+> generating polymer pS20-s14pB20...
+>> sequence: SSSSSSSSSSSSSSSSSSSS44444444444444444444
+>> writing PDB file pS20-s14pB20.pdb
 >> Detected connectivity in monomer PDB files, writing out connectivity to PDB<<
 
-> generating polymer pmS20-pE40...
->> sequence: MMMMMMMMMMMMMMMMMMMMEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
->> writing PDB file pmS20-pE40.pdb
->> Detected connectivity in monomer PDB files, writing out connectivity to PDB<<
-
-> generating polymer pS20-12pB20...
+> generating polymer pS20-s12pB20...
 >> sequence: SSSSSSSSSSSSSSSSSSSS22222222222222222222
->> writing PDB file pS20-12pB20.pdb
+>> writing PDB file pS20-s12pB20.pdb
 >> Detected connectivity in monomer PDB files, writing out connectivity to PDB<<
 
-> generating polymer pmS20-12pB20...
+> generating polymer pmS20-s14pB20...
+>> sequence: MMMMMMMMMMMMMMMMMMMM44444444444444444444
+>> writing PDB file pmS20-s14pB20.pdb
+>> Detected connectivity in monomer PDB files, writing out connectivity to PDB<<
+
+> generating polymer pmS20-s12pB20...
 >> sequence: MMMMMMMMMMMMMMMMMMMM22222222222222222222
->> writing PDB file pmS20-12pB20.pdb
+>> writing PDB file pmS20-s12pB20.pdb
 >> Detected connectivity in monomer PDB files, writing out connectivity to PDB<<
 
 > All done! Thank you for using Assemble! <

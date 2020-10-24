@@ -1,0 +1,13 @@
+# Naming convention
+homopolymer: <polymer name><DOP>.pdb
+block copolymer: <polymer name 1><DOP 1>-<polymer name 2><DOP 2>.pdb
+
+polymer names:
+pS		polystyrene
+pmS		poly p-methylstyrene
+s12pB   	saturated 1,2 polybutadiene
+s14pB   	saturated 1,4 polybutadiene
+12pB		1,2 polybutadiene
+14pBcis 	cis-1,4 polybutadiene
+14pBtrans	trans-1,4 polybutadiene
+	
