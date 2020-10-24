@@ -122,7 +122,7 @@
       <AddAtom name="C9" type="CH3(sp3)"/>
       <ChangeAtom name="C4" type="C(aro)"/>
       <AddBond atomName1="C4" atomName2="C9"/>
-    </Patch-->     
+    </Patch>     
   </Patches>
   
   <HarmonicBondForce>
