@@ -103,7 +103,7 @@ if run_npt:
 
 if use_gpu:
     platform = mm.Platform.getPlatformByName('OpenCL')
-    properties = {'DeviceIndex':'1', 'Precision':'mixed'}
+    properties = {'DeviceIndex':'0', 'Precision':'mixed'}
 else:
     platform = mm.Platform.getPlatformByName('CPU')
     properties = {'Threads': '1'}
