@@ -92,7 +92,7 @@ system = forcefield.createSystem(sys_pdb.topology,
                                 nonbondedCutoff = nonbonded_cutoff, 
                                 ewaldErrorTolerance=ewald_tol, 
                                 rigidWater=True, 
-                                constraints=None)
+                                constraints=app.AllBonds)
 
 
 integrator = mm.LangevinIntegrator(temperature_anneal*unit.kelvin, friction, dt*unit.picosecond)
