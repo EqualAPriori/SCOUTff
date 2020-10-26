@@ -94,6 +94,12 @@ system = forcefield.createSystem(sys_pdb.topology,
                                 rigidWater=True, 
                                 constraints=app.AllBonds)
 
+# write out xml
+from simtk.openmm import XmlSerializer
+serialized_system_gromacs = XmlSerializer.serialize(system)
+outfile = open('{}_system.xml'.format(prefix),'w')
+outfile.write(serialized_system_gromacs)
+outfile.close()
 
 integrator = mm.LangevinIntegrator(temperature_anneal*unit.kelvin, friction, dt*unit.picosecond)
 barostat = mm.MonteCarloBarostat( pressure*unit.bar, temperature_anneal*unit.kelvin, barostatfreq )
