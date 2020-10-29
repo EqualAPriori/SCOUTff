@@ -21,10 +21,9 @@ except KeyError:
     showPlots = False
     matplotlib.use('Agg') #Need to set this so doesn't try (and fail) to open interactive graphics window
 
-
 N_av = 6.022e23 #1/mol
 kB = 0.008314265 #kJ/mol/K
-#########################End of input######################
+
 def GetThermo(ThermoLog, fi = 'lammps', obs = None, cols = None, autowarmup = True, warmup = 100, plot=False, plotDir = 'Thermo_plots'):
     """ fi: log file format, 'lammps' or 'openmm' """
     if not obs == None and not cols == None:
@@ -200,9 +199,6 @@ def GetRgRee(traj, DOP, NP, NAtomsPerChain = None, plotDir = 'RgRee_plots',
         CorrTime = kappa 
         NUncorrSamples = nsamples/kappa
         RgStats.append([RgAvg,RgStd,CorrTime,RgErr,NUncorrSamples])
-
-#        print ('The Rg for molecule {} (mean, error, std)'.format(j))
-#        print ('\t{0:2.4f}\t{1:2.5f}\t{1:2.5f}'.format(RgAvg, RgErr, RgStd))
 
         ''' Plot Rg '''
         if plot:
@@ -471,7 +467,7 @@ if __name__ ==  '__main__':
     parser.add_argument('-np', type = int, required = True, default = 1, help = 'number of polymer chains')
     parser.add_argument('-dop', type = int, required = True, default = 1, help = 'chain length')
     parser.add_argument('-c', type = int, nargs ='+', default = None, help = 'column indices (index of 1st column is 0) in thermo log file to get stats')
-    parser.add_argument('-densc', type = int, default = None, help = 'column indices of melt density in thermo log file, must be in g/mL')
+    parser.add_argument('-densc', type = int, default = None, help = 'column indices of melt density in thermo log file, must be in g/mL, override -dens if both are  provided')
     parser.add_argument('-dens', type = float, default = None, help = 'melt density in g/mL')
     parser.add_argument('-bb', type = str, default = ['C1','C2'], nargs ='+', help='names of backbone atoms in the topology file')                            
     parser.add_argument('-mon', action='append', nargs=2, help = "pairs: monomer_name number_per_chain")
@@ -486,9 +482,9 @@ if __name__ ==  '__main__':
     """ example command:
     python analysis.py -traj run0_output.dcd -top run0_post_production.pdb -ther run0_thermo_production.out -np 1 -dop 60 -c 4 -densc 4 -bb C1 C2 -mon s12pB 60 -a -g"""
 
-    TrajFile = args.traj #'run0_output.dcd' 
-    top = args.top #'run0_post_production.pdb' 
-    ThermoLog = args.ther #'run0_thermo_production.out'    
+    TrajFile = args.traj  
+    top = args.top  
+    ThermoLog = args.ther    
     stride = args.s
     
     # Rg Ree    
