@@ -12,7 +12,6 @@ import stats
 import numpy as np
 import matplotlib, sys, os
 import matplotlib.pyplot as plt
-import MDAnalysis as mda
 import mdtraj as md
 import log2txt
 showPlots = True
