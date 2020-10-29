@@ -202,6 +202,7 @@ simulation.minimizeEnergy(tolerance=0.01*unit.kilojoules_per_mole,maxIterations=
 print('post minimization potential energy: {} \n'.format(simulation.context.getState(getEnergy=True).getPotentialEnergy()))
 time_end = time.time()
 print("done with minimization in {} minutes\n".format((time_end-time_start)/60.))
+positions = simulation.context.getState(getPositions=True).getPositions()       
 app.pdbfile.PDBFile.writeModel(simulation.topology,positions,open('{}_post_minimization.pdb'.format(prefix),'w'))
 
 
