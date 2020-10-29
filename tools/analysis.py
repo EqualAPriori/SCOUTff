@@ -480,7 +480,7 @@ if __name__ ==  '__main__':
     args = parser.parse_args()
     
     """ example command:
-    python analysis.py -traj run0_output.dcd -top run0_post_production.pdb -ther run0_thermo_production.out -np 1 -dop 60 -c 4 -densc 4 -bb C1 C2 -mon s12pB 60 -a -g"""
+    python analysis.py -traj run0_output.dcd -top run0_post_production.pdb -ther run0_thermo_production.out -np 50 -dop 60 -c 4 -densc 6 -bb C1 C2 -mon s12pB 60 -a -g"""
 
     TrajFile = args.traj  
     top = args.top  
