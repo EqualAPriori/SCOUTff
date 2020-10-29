@@ -35,7 +35,7 @@ barostatfreq    = 25
 run_npt         = True
 use_gpu         = True
 
-nonbonded_method = app.LJPME
+#nonbonded_method = app.LJPME #set below
 nonbonded_cutoff = 1.*unit.nanometer
 ewald_tol = 0.0001
 friction = 1./unit.picosecond
@@ -61,6 +61,8 @@ parser.add_argument('-boxfile', type=str, default='packing_box.txt')
 parser.add_argument('-ff','--fflist', type=str, default=None, nargs='+', help = "string of path to ff files")
 parser.add_argument('-sysxml', type=str, default=None, help = 'system xml')
 parser.add_argument('-chkstate', type=str, default=None, help = 'checkpoint or state to load')
+parser.add_argument('-PME', action='store_true', help = 'LJPME is default, toggle to enable PME')
+parser.add_argument('-tail', action='store_true', help = 'tail correction is false by default, toggle to turn on')
 args = parser.parse_args()
 
 prefix = args.prefix
@@ -79,6 +81,15 @@ top = sys_pdb.topology
 
 if ff_list is None and args.sysxml is None:
     raise ValueError('must either provide forcefield or system xml')
+
+if args.PME:
+    print('using PME with tail correction {}'.format(args.tail))
+    nonbonded_method = app.PME
+    use_tail = args.tail
+else: 
+    print('using LJPME, tail correction automatically off')
+    nonbonded_method = app.LJPME
+    use_tail = False
 
 # === Set up simulation ===
 if ff_list is not None:
@@ -111,13 +122,6 @@ else: #ff_list should be defined
     if run_npt:
         system.addForce(barostat)
 
-    # write out xml
-    from simtk.openmm import XmlSerializer
-    serialized_system_gromacs = XmlSerializer.serialize(system)
-    outfile = open('{}_system.xml'.format(prefix),'w')
-    outfile.write(serialized_system_gromacs)
-    outfile.close()
-
 
 integrator = mm.LangevinIntegrator(temperature_anneal*unit.kelvin, friction, dt*unit.picosecond)
 if use_gpu:
@@ -128,7 +132,6 @@ else:
     properties = {'Threads': '1'}
 
 simulation = app.Simulation( top, system, integrator, platform, properties )
-
 
 # === Get initial configuration === 
 if args.chkstate is not None:
@@ -151,6 +154,21 @@ else:
     simulation.context.applyConstraints(1e-8)
 
 
+# By default PME turns on tail correction. Manually turn off if requested
+print('system may deviate from loaded system, because setting tail correction to {}'.format(use_tail))
+system = simulation.context.getSystem() 
+ftmp = [f for ii, f in enumerate(system.getForces()) if isinstance(f,mm.NonbondedForce)]
+fnb = ftmp[0]
+fnb.setUseDispersionCorrection(use_tail)
+
+# write out xml, ONLY after making sure no more changes are made to the system
+from simtk.openmm import XmlSerializer
+serialized_system_gromacs = XmlSerializer.serialize(system)
+outfile = open('{}_system.xml'.format(prefix),'w')
+outfile.write(serialized_system_gromacs)
+outfile.close()
+
+
 # === Minimize Energy ===
 print('\n=== Minimizing ===')
 time_start = time.time()
@@ -158,8 +176,8 @@ print('pre minimization potential energy: {} \n'.format(simulation.context.getSt
 simulation.minimizeEnergy(tolerance=0.01*unit.kilojoules_per_mole,maxIterations=1000000)
 print('post minimization potential energy: {} \n'.format(simulation.context.getState(getEnergy=True).getPotentialEnergy()))
 time_end = time.time()
-positions = simulation.context.getState(getPositions=True).getPositions()       
 print("done with minimization in {} minutes\n".format((time_end-time_start)/60.))
+positions = simulation.context.getState(getPositions=True).getPositions()       
 app.pdbfile.PDBFile.writeModel(simulation.topology,positions,open('{}_post_minimization.pdb'.format(prefix),'w'))
 
 
