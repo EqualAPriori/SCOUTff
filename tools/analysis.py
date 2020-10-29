@@ -25,11 +25,18 @@ except KeyError:
 N_av = 6.022e23 #1/mol
 kB = 0.008314265 #kJ/mol/K
 #########################End of input######################
-def GetThermo(ThermoLog, fi = 'lammps', obs = None, cols = None, autowarmup = True, warmup = 100):
+def GetThermo(ThermoLog, fi = 'lammps', obs = None, cols = None, autowarmup = True, warmup = 100, plot=False, plotDir = 'Thermo_plots'):
     """ fi: log file format, 'lammps' or 'openmm' """
     if not obs == None and not cols == None:
         Exception('Read data either by observable name or column index but not both!')
 
+    if plot:
+        try:
+            os.mkdir(plotDir)
+        except:
+            pass
+        print('...Thermo plots will be saved in {}...\n'.format(plotDir))
+        
     #conver log file:
     if fi == 'openmm':
             ThermoLog = log2txt.log2txt_openmm([ThermoLog])[0]
@@ -74,6 +81,16 @@ def GetThermo(ThermoLog, fi = 'lammps', obs = None, cols = None, autowarmup = Tr
         lines += "\n  - S.D. (unbiased, biased) = {} {}".format(np.sqrt(unbiasedvar),np.std(Data,ddof=0)) # ddof is correction to 1/N...using ddof=1 returns regular reduced-bias estimator
         lines += "\n  - Min, Max                = {} {}\n".format(min,max)
 
+        ''' Plot '''
+        if plot:
+            plt.axvspan(0, nwarmup, alpha=0.5, color='#6495ED')
+            plt.plot(np.hstack((warmup,Data)))
+            plt.xlim(0)
+            plt.xlabel('timestep')
+            plt.ylabel(obsName)
+            plt.savefig("{}/{}.png".format(plotDir,obsName),bbox_inches='tight')
+            plt.close()
+            
         print(lines)
         txt += lines
     
@@ -101,11 +118,12 @@ def GetRgRee(traj, DOP, NP, NAtomsPerChain = None, plotDir = 'RgRee_plots',
                         "virtual site": 1.0,
                         "virtual_site": 1.0,
                         "sodium": "na+"}
-    try:
-        os.mkdir(plotDir)
-    except:
-        pass
-    print('...Rg and Ree plots will be saved in {}...\n'.format(plotDir))
+    if plot:
+        try:
+            os.mkdir(plotDir)
+        except:
+            pass
+        print('...Rg and Ree plots will be saved in {}...\n'.format(plotDir))
     RgStats = []
     RgList = [] # warmed up data
     RgTimeseries = [range(traj.n_frames)]
@@ -301,6 +319,7 @@ def RMSBond(traj, backboneAtoms = ['C1','C2'], resid = [], autowarmup=True, warm
         for i in resid:
             aId.extend(top.select("resid {}".format(i)))
         traj = traj.atom_slice(aId)
+        top = traj.topology
         
     # get pairs of atoms to calculate bond length
     IsBackbone = [set([bond[0].name,bond[1].name]).issubset(set(backboneAtoms)) for bond in top.bonds]
@@ -325,7 +344,7 @@ def RMSBond(traj, backboneAtoms = ['C1','C2'], resid = [], autowarmup=True, warm
     return lAvg,lStd,lErr, lRMS, lRMSErr     
         
 def GetStats(trajFile, top, NP, ThermoLog, DOP = 10, NAtomsPerChain = None, getRMSBond=False, 
-             backboneAtoms= ['C1','C2'], resid = [],  monMass={}, nMons={}, density=None,
+             backboneAtoms= ['C1','C2'], monMass={}, nMons={}, density=None,
              StatsFName = 'AllStats.dat', RgDatName = 'RgTimeSeries', ReeDatName = 'ReeTimeSeries',RgStatOutName = 'RgReeStats', Ext='.dat',  
              fi = 'openmm', obs = None, cols = None, density_col = None,
              res0Id = 0, stride = 1, autowarmup = True, warmup = 100, plot = False, unit = 'real'):
@@ -342,7 +361,8 @@ def GetStats(trajFile, top, NP, ThermoLog, DOP = 10, NAtomsPerChain = None, getR
         traj.xyz *= 10.
         traj.unitcell_lengths *= 10
     
-    if NP > 0:        
+    if NP > 0:
+        resid = range(res0Id,res0Id +  NP * DOP - 1) # residues indices of polymer chains
         RgAvg,RgStd,RgErr,RgCorrTime,RgCorrTimeErr,RgNUncorrSamples, ReeAvg,ReeStd,ReeErr,ReeCorrTime,ReeCorrTimeErr,ReeNUncorrSamples,RgRMS, ReeRMS,RgRMSErr,ReeRMSErr = GetRgRee(traj, DOP, NP, NAtomsPerChain = NAtomsPerChain,
              RgDatName = RgDatName, ReeDatName = ReeDatName, RgStatOutName = RgStatOutName, Ext=Ext,
              res0Id = res0Id, autowarmup = autowarmup, warmup = warmup, plot = plot)
@@ -351,8 +371,6 @@ def GetStats(trajFile, top, NP, ThermoLog, DOP = 10, NAtomsPerChain = None, getR
         txt += '\nRMS Rg  %8.5f  N/A  %8.5f'%(RgRMS,RgRMSErr)
         txt += '\nRMS Ree  %8.5f  N/A  %8.5f'%(ReeRMS,ReeRMSErr)
         
-    if density_col == []:
-        density_col = None
     if density_col != None:
         if cols == None:
             cols = []
@@ -360,10 +378,10 @@ def GetStats(trajFile, top, NP, ThermoLog, DOP = 10, NAtomsPerChain = None, getR
 
     if not (obs==None and cols==None):
         print('reading thermo file {}'.format(ThermoLog))
-        obsID, Stats = GetThermo(ThermoLog, fi = fi, obs = obs, cols = cols, autowarmup = autowarmup, warmup = warmup)    
+        obsID, Stats = GetThermo(ThermoLog, fi = fi, obs = obs, cols = cols, autowarmup = autowarmup, warmup = warmup, plot=plot)    
         for i, obs in enumerate(obsID):
             Avg,Std,CorrTime,Err,NUncorrSamples = Stats[i]
-            if i == len(cols)-1:
+            if density_col != None and i == len(cols)-1:
                 obsName = 'Density'
                 density = Avg
             else: 
@@ -385,7 +403,7 @@ def GetStats(trajFile, top, NP, ThermoLog, DOP = 10, NAtomsPerChain = None, getR
     # statistical segment length
     Vref1 = 0.1 #nm^3
     Vref2 = 0.117 #nm^3
-    if density and NP > 0:
+    if density and NP > 0 and len(nMons.items())>0:
         #check if DOP = total number of monomers:
         if np.abs(np.sum(np.array(list(nMons.values())))-DOP) > 1e-2: 
             raise Exception('Total number of monomers in monInChain must be equal to DOP')
@@ -444,32 +462,64 @@ def GetCompressibility(trajFile, top, temp, stride = 1, unit = 'bar', lengthScal
 
 if __name__ ==  '__main__':
     
-    TrajFile = 'run0_output.dcd' 
-    top = 'run0_post_production.pdb' 
-    ThermoLog = 'run0_thermo_production.out'    
+    import argparse as ap
+    parser = ap.ArgumentParser()
+    parser.add_argument('-traj', required=True, type=str, help = "trajectory file")
+    parser.add_argument('-top', required=True, type=str, help = "topology file")
+    parser.add_argument('-s', type=int, default=1, help = "trajectory stride")
+    parser.add_argument('-ther', type=str, default=None, help = 'thermo log file')
+    parser.add_argument('-np', type = int, required = True, default = 1, help = 'number of polymer chains')
+    parser.add_argument('-dop', type = int, required = True, default = 1, help = 'chain length')
+    parser.add_argument('-c', type = int, nargs ='+', default = None, help = 'column indices (index of 1st column is 0) in thermo log file to get stats')
+    parser.add_argument('-densc', type = int, default = None, help = 'column indices of melt density in thermo log file, must be in g/mL')
+    parser.add_argument('-dens', type = float, default = None, help = 'melt density in g/mL')
+    parser.add_argument('-bb', type = str, default = ['C1','C2'], nargs ='+', help='names of backbone atoms in the topology file')                            
+    parser.add_argument('-mon', action='append', nargs=2, help = "pairs: monomer_name number_per_chain")
 
+    parser.add_argument('-getRMSBond', default = True, help = 'get rms of backbone bond length')
+    parser.add_argument('-res0', type = int, default = 0, help='index of the first polymer residue')
+    parser.add_argument('-a', action='store_true', help='use autowarmup to get stats')
+    parser.add_argument('-g', action='store_true', help='plot time series of observables')
+    parser.add_argument('-w', type = int, default=100, help='number of warmup data points')    
+    args = parser.parse_args()
+    
+    """ example command:
+    python analysis.py -traj run0_output.dcd -top run0_post_production.pdb -ther run0_thermo_production.out -np 1 -dop 60 -c 4 -densc 4 -bb C1 C2 -mon s12pB 60 -a -g"""
+
+    TrajFile = args.traj #'run0_output.dcd' 
+    top = args.top #'run0_post_production.pdb' 
+    ThermoLog = args.ther #'run0_thermo_production.out'    
+    stride = args.s
+    
     # Rg Ree    
-    NP = 50  # number of chain 
-    DOP = 60 # chain length
-
-    # segment length from density (when density_col or density is provided)
-    monMass = {'pS': 108., 'pmS': 118., 's12pB': 56., 's14pB': 56., '12pB': 54., '14pBcis': 54., '14pBtrans':54.} # g/mol
-    # list monomers in the chain and their respective numbers (monomers must have mass defined in monomerMass dictionary):
-    nMons = {'s12pB':60}
+    NP = args.np
+    DOP = args.dop 
+    res0Id = args.res0
     
     # thermo 
-    cols = [4] # column indices (index of 1st column is 0) in ThermoLog to get stats
-    density_col = 6 # column indices of density if density in g/mL, otherwise provide an average density in g/mL below    
-    density = None # melt density in g/mL
+    cols = args.c
+    density_col = args.densc
+    density = args.dens
     
     # RMS bond between adjacent heavy atoms in the backbone
-    getRMSBond = True
-    backboneAtoms = ['C1','C2'] # names of backbone atoms in the topology file 
-    resid = [] # only calculate the RMS bond length from these residue indices if provided, otherwise include all residues        
-
-    GetStats(TrajFile, top, NP, ThermoLog, DOP = DOP, NAtomsPerChain = None, stride = 1, 
-            getRMSBond = getRMSBond, backboneAtoms = backboneAtoms, resid = resid, StatsFName = 'AllStats.dat', 
-            monMass=monMass,nMons=nMons, density=None,
+    getRMSBond = args.getRMSBond
+    backboneAtoms = args.bb
+    
+    # segment length from density (when density_col or density is provided)
+    # list monomers in the chain and their respective numbers (monomers must have mass defined in monomerMass dictionary):
+    nMons = {}
+    if args.mon:
+        for val in args.mon:
+            nMons.update({val[0]:int(val[1])})
+    monMass = {'pS': 108., 'pmS': 118., 's12pB': 56., 's14pB': 56., '12pB': 54., '14pBcis': 54., '14pBtrans':54.} # g/mol
+    
+    autowarmup = args.a
+    plot = args.g
+    warmup = args.w
+    
+    GetStats(TrajFile, top, NP, ThermoLog, DOP = DOP, NAtomsPerChain = None, stride = stride, 
+            getRMSBond = getRMSBond, backboneAtoms = backboneAtoms, StatsFName = 'AllStats.dat', 
+            monMass=monMass,nMons=nMons, density=density, res0Id = res0Id,
             RgDatName = 'RgTimeSeries', ReeDatName = 'ReeTimeSeries',RgStatOutName = 'RgReeStats', Ext='.dat',
-            cols = cols, density_col = density_col, autowarmup = True, warmup = 100, plot = True)
+            cols = cols, density_col = density_col, autowarmup = autowarmup, warmup = warmup, plot = plot)
 
