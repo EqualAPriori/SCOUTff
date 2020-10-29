@@ -115,8 +115,8 @@ def GetRgRee(traj, DOP, NP, NAtomsPerChain = None, plotDir = 'RgRee_plots',
                         "oxygen": 16.00,
                         "nitrogen": 14.001,
                         "virtual site": 1.0,
-                        "virtual_site": 1.0,
-                        "sodium": "na+"}
+                        "sodium": 23.0,
+                        "chloride": 35.5}
     if plot:
         try:
             os.mkdir(plotDir)
@@ -339,7 +339,7 @@ def RMSBond(traj, backboneAtoms = ['C1','C2'], resid = [], autowarmup=True, warm
     print('from heavy atoms {}\n'.format(backboneAtoms))
     return lAvg,lStd,lErr, lRMS, lRMSErr     
         
-def GetStats(trajFile, top, NP, ThermoLog, DOP = 10, NAtomsPerChain = None, getRMSBond=False, 
+def GetStats(trajFile, top, NP, ThermoLog, DOP = 10, NAtomsPerChain = None,  
              backboneAtoms= ['C1','C2'], monMass={}, nMons={}, density=None,
              StatsFName = 'AllStats.dat', RgDatName = 'RgTimeSeries', ReeDatName = 'ReeTimeSeries',RgStatOutName = 'RgReeStats', Ext='.dat',  
              fi = 'openmm', obs = None, cols = None, density_col = None,
@@ -387,7 +387,7 @@ def GetStats(trajFile, top, NP, ThermoLog, DOP = 10, NAtomsPerChain = None, getR
             except:
                 txt +=  '\n%s  %8.5f  %8.5f  %8.5f  %8.5f  %s  %s' %(obsName, Avg, Std, Err, CorrTime, 'N/A',NUncorrSamples)
     txt2 = ""
-    if getRMSBond and NP > 0:
+    if backboneAtoms and NP > 0:
         lAvg,lStd,lErr,lRMS, lRMSErr = RMSBond(traj, backboneAtoms=backboneAtoms, resid=resid)
         txt +=  '\n%s  %8.8f  %8.8f  %8.5f' %('Bond', lAvg, lStd, lErr)
         #calculate characteristic ratio
@@ -469,10 +469,9 @@ if __name__ ==  '__main__':
     parser.add_argument('-c', type = int, nargs ='+', default = None, help = 'column indices (index of 1st column is 0) in thermo log file to get stats')
     parser.add_argument('-densc', type = int, default = None, help = 'column indices of melt density in thermo log file, must be in g/mL, override -dens if both are  provided')
     parser.add_argument('-dens', type = float, default = None, help = 'melt density in g/mL')
-    parser.add_argument('-bb', type = str, default = ['C1','C2'], nargs ='+', help='names of backbone atoms in the topology file')                            
+    parser.add_argument('-bb', type = str, default = None, nargs ='+', help='names of backbone atoms in the topology file')                            
     parser.add_argument('-mon', action='append', nargs=2, help = "pairs: monomer_name number_per_chain")
 
-    parser.add_argument('-getRMSBond', default = True, help = 'get rms of backbone bond length')
     parser.add_argument('-res0', type = int, default = 0, help='index of the first polymer residue')
     parser.add_argument('-a', action='store_true', help='use autowarmup to get stats')
     parser.add_argument('-g', action='store_true', help='plot time series of observables')
@@ -498,7 +497,6 @@ if __name__ ==  '__main__':
     density = args.dens
     
     # RMS bond between adjacent heavy atoms in the backbone
-    getRMSBond = args.getRMSBond
     backboneAtoms = args.bb
     
     # segment length from density (when density_col or density is provided)
@@ -514,7 +512,7 @@ if __name__ ==  '__main__':
     warmup = args.w
     
     GetStats(TrajFile, top, NP, ThermoLog, DOP = DOP, NAtomsPerChain = None, stride = stride, 
-            getRMSBond = getRMSBond, backboneAtoms = backboneAtoms, StatsFName = 'AllStats.dat', 
+            backboneAtoms = backboneAtoms, StatsFName = 'AllStats.dat', 
             monMass=monMass,nMons=nMons, density=density, res0Id = res0Id,
             RgDatName = 'RgTimeSeries', ReeDatName = 'ReeTimeSeries',RgStatOutName = 'RgReeStats', Ext='.dat',
             cols = cols, density_col = density_col, autowarmup = autowarmup, warmup = warmup, plot = plot)
