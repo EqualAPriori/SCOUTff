@@ -397,7 +397,7 @@ def GetStats(trajFile, top, NP, ThermoLog, DOP = 10, NAtomsPerChain = None, getR
         #calculate characteristic ratio
         n = len(backboneAtoms)*DOP - 1 # number of backbone bonds
         Cn = ReeRMS**2 / (n * lRMS**2)
-        txt2 += '\n\nRMS bond length between heavy atoms: %8.8f' %(lRMS)
+        txt2 += '\n\nRMS bond length between heavy atoms: %8.8f +/- %8.8f' %(lRMS,lRMSErr)
         txt2 += '\nCharacteristic ratio:  %8.8f' %(Cn)
         
     # statistical segment length
