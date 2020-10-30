@@ -35,7 +35,7 @@ barostatfreq    = 25
 run_npt         = True
 use_gpu         = True
 
-nonbonded_method = app.LJPME
+#nonbonded_method = app.LJPME #set below
 nonbonded_cutoff = 1.*unit.nanometer
 ewald_tol = 0.0001
 friction = 1./unit.picosecond
@@ -58,6 +58,8 @@ parser.add_argument('-L', type=float, default=10., help = '(cubic) box L in nm')
 parser.add_argument('-m','--molpair', action='append', nargs=2, help = "pairs: molecule_file_name molecule_number")
 parser.add_argument('-top','--topfile', type=str, default='', help = "optionally, enter a text file that has the molecule file name and molecule #'s specified")
 parser.add_argument('-ff','--fflist', type=str, nargs='+', help = "string of path to ff files")
+parser.add_argument('-PME', action='store_true', help = 'LJPME is default, toggle to enable PME')
+parser.add_argument('-tail', action='store_true', help = 'tail correction is false by default, toggle to turn on')
 args = parser.parse_args()
 
 box_L = args.L
@@ -86,6 +88,16 @@ for entry in sys_descrip:
 
 #ff_list = ['TrappeUA_Styrene_Gromos.xml','tip4pew.xml']
 ff_list = args.fflist
+
+
+if args.PME:
+    print('using PME with tail correction {}'.format(args.tail))
+    nonbonded_method = app.PME
+    use_tail = args.tail
+else: 
+    print('using LJPME, tail correction automatically off')
+    nonbonded_method = app.LJPME
+    use_tail = False
 
 # === Make topology ===
 top = app.topology.Topology()
@@ -164,12 +176,13 @@ system = forcefield.createSystem(top,
                                 constraints=None)
 
 
-integrator = mm.LangevinIntegrator(temperature*unit.kelvin, friction, dt*unit.picosecond)
 barostat = mm.MonteCarloBarostat( pressure*unit.bar, temperature*unit.kelvin, barostatfreq )
 #barostat = mm.MonteCarloBarostat( pressure, temperature, barostatfreq )
 if run_npt:
     system.addForce(barostat)
 
+
+integrator = mm.LangevinIntegrator(temperature*unit.kelvin, friction, dt*unit.picosecond)
 if use_gpu:
     platform = mm.Platform.getPlatformByName('OpenCL')
     properties = {'DeviceIndex':'0', 'Precision':'mixed'}
@@ -194,6 +207,20 @@ simulation.context.setPeriodicBoxVectors(periodic_box_vectors[0],periodic_box_ve
 simulation.context.applyConstraints(1e-8)
 
 
+# By default PME turns on tail correction. Manually turn off if requested
+print('setting tail correction to {}'.format(use_tail))
+ftmp = [f for ii, f in enumerate(system.getForces()) if isinstance(f,mm.NonbondedForce)]
+fnb = ftmp[0]
+fnb.setUseDispersionCorrection(use_tail)
+
+# write out xml, ONLY after making sure no more changes are made to the system
+from simtk.openmm import XmlSerializer
+serialized_system_gromacs = XmlSerializer.serialize(system)
+outfile = open('{}_system.xml'.format(prefix),'w')
+outfile.write(serialized_system_gromacs)
+outfile.close()
+
+
 # === Minimize Energy ===
 print('\n=== Minimizing ===')
 time_start = time.time()
@@ -202,6 +229,7 @@ simulation.minimizeEnergy(tolerance=0.01*unit.kilojoules_per_mole,maxIterations=
 print('post minimization potential energy: {} \n'.format(simulation.context.getState(getEnergy=True).getPotentialEnergy()))
 time_end = time.time()
 print("done with minimization in {} minutes\n".format((time_end-time_start)/60.))
+positions = simulation.context.getState(getPositions=True).getPositions()       
 app.pdbfile.PDBFile.writeModel(simulation.topology,positions,open('{}_post_minimization.pdb'.format(prefix),'w'))
 
 

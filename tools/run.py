@@ -94,6 +94,12 @@ system = forcefield.createSystem(sys_pdb.topology,
                                 rigidWater=True, 
                                 constraints=None)
 
+# write out xml
+from simtk.openmm import XmlSerializer
+serialized_system_gromacs = XmlSerializer.serialize(system)
+outfile = open('{}_system.xml'.format(prefix),'w')
+outfile.write(serialized_system_gromacs)
+outfile.close()
 
 integrator = mm.LangevinIntegrator(temperature_anneal*unit.kelvin, friction, dt*unit.picosecond)
 barostat = mm.MonteCarloBarostat( pressure*unit.bar, temperature_anneal*unit.kelvin, barostatfreq )
@@ -103,7 +109,7 @@ if run_npt:
 
 if use_gpu:
     platform = mm.Platform.getPlatformByName('OpenCL')
-    properties = {'DeviceIndex':'1', 'Precision':'mixed'}
+    properties = {'DeviceIndex':'0', 'Precision':'mixed'}
 else:
     platform = mm.Platform.getPlatformByName('CPU')
     properties = {'Threads': '1'}

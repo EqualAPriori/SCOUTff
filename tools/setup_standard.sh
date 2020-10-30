@@ -55,10 +55,10 @@ cd $mydir
 
     echo "# Suggested commands" > z.commands
     echo "python ${toollib}make_topology.py -L $L -pkml $pkmldir -structlib $structlib -m $polymer $npoly -ff ${fflib}TrappeUA_Master.xml" >> z.commands
-    echo "python ${toollib}make_topology.py -L $L -pkml $pkmldir -structlib $structlib -m $polymer $npoly -ff ${fflib}TrappeUA_Master.xml" >> podsubmit.sh
+    echo "srun --gres=gpu:1" "python ${toollib}make_topology.py -L $L -pkml $pkmldir -structlib $structlib -m $polymer $npoly -ff ${fflib}TrappeUA_Master.xml" >> podsubmit.sh
     echo "" >> z.commands
     echo "python ./run.py -ff ${fflib}TrappeUA_Master.xml" >> z.commands
-    echo "python ./run.py -ff ${fflib}TrappeUA_Master.xml" >> podsubmit.sh
+    echo "srun --gres=gpu:1" "python ./run.py -ff ${fflib}TrappeUA_Master.xml" >> podsubmit.sh
 
 
 cd ..

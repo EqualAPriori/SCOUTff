@@ -1,0 +1,118 @@
+REMARK   1 CREATED WITH MDTraj 1.9.3, 2020-10-27
+CRYST1   55.390   55.390   55.390  90.00  90.00  90.00 P 1           1 
+MODEL        0
+ATOM      1  CA  AHP A   1       7.603  27.447  17.885  1.00  0.00          C   
+ATOM      2  CB  AHP A   1       7.326  27.347  16.348  1.00  0.00          C   
+ATOM      3  CC  AHP A   1       8.605  28.565  18.324  1.00  0.00          C   
+ATOM      4  OD1 AHP A   1       6.224  27.413  15.839  1.00  0.00          O   
+ATOM      5  OD2 AHP A   1       8.377  27.578  15.521  1.00  0.00          O   
+ATOM      6  HA1 AHP A   1       6.618  27.634  18.331  1.00  0.00          H   
+ATOM      7  HC1 AHP A   1       8.772  28.369  19.391  1.00  0.00          H   
+ATOM      8  HC2 AHP A   1       9.595  28.340  17.908  1.00  0.00          H   
+ATOM      9  HO  AHP A   1       8.049  27.496  14.609  1.00  0.00          H   
+ATOM     10  HA2 AHP A   1       7.977  26.528  18.352  1.00  0.00          H   
+ATOM     11  CA   AP A   2       8.226  30.097  18.149  1.00  0.00          C   
+ATOM     12  CB   AP A   2       8.301  30.466  16.585  1.00  0.00          C   
+ATOM     13  CC   AP A   2       6.817  30.406  18.808  1.00  0.00          C   
+ATOM     14  OD1  AP A   2       9.145  31.194  16.097  1.00  0.00          O   
+ATOM     15  OD2  AP A   2       7.155  30.258  15.971  1.00  0.00          O   
+ATOM     16  HA1  AP A   2       9.017  30.597  18.722  1.00  0.00          H   
+ATOM     17  HC1  AP A   2       6.011  30.167  18.104  1.00  0.00          H   
+ATOM     18  HC2  AP A   2       6.731  29.736  19.672  1.00  0.00          H   
+ATOM     19  HO   AP A   2       7.238  30.884  15.231  1.00  0.00          H   
+ATOM     20  CA   AP A   3       6.648  31.939  19.387  1.00  0.00          C   
+ATOM     21  CB   AP A   3       7.889  32.315  20.253  1.00  0.00          C   
+ATOM     22  CC   AP A   3       6.435  32.854  18.106  1.00  0.00          C   
+ATOM     23  OD1  AP A   3       8.708  33.193  19.951  1.00  0.00          O   
+ATOM     24  OD2  AP A   3       7.817  32.071  21.571  1.00  0.00          O   
+ATOM     25  HA1  AP A   3       5.770  31.929  20.045  1.00  0.00          H   
+ATOM     26  HC1  AP A   3       5.784  32.286  17.430  1.00  0.00          H   
+ATOM     27  HC2  AP A   3       7.358  32.952  17.520  1.00  0.00          H   
+ATOM     28  HO   AP A   3       8.300  32.773  22.040  1.00  0.00          H   
+ATOM     29  CA   AP A   4       5.640  34.214  18.312  1.00  0.00          C   
+ATOM     30  CB   AP A   4       5.128  34.602  16.910  1.00  0.00          C   
+ATOM     31  CC   AP A   4       6.671  35.293  18.769  1.00  0.00          C   
+ATOM     32  OD1  AP A   4       3.944  34.886  16.716  1.00  0.00          O   
+ATOM     33  OD2  AP A   4       5.910  34.396  15.859  1.00  0.00          O   
+ATOM     34  HA1  AP A   4       4.857  34.227  19.080  1.00  0.00          H   
+ATOM     35  HC1  AP A   4       7.547  35.234  18.111  1.00  0.00          H   
+ATOM     36  HC2  AP A   4       6.992  35.008  19.779  1.00  0.00          H   
+ATOM     37  HO   AP A   4       5.285  34.070  15.188  1.00  0.00          H   
+ATOM     38  CA   AP A   5       6.056  36.692  18.834  1.00  0.00          C   
+ATOM     39  CB   AP A   5       5.123  36.684  20.069  1.00  0.00          C   
+ATOM     40  CC   AP A   5       7.197  37.797  18.930  1.00  0.00          C   
+ATOM     41  OD1  AP A   5       3.897  36.825  19.911  1.00  0.00          O   
+ATOM     42  OD2  AP A   5       5.572  36.365  21.258  1.00  0.00          O   
+ATOM     43  HA1  AP A   5       5.422  36.937  17.973  1.00  0.00          H   
+ATOM     44  HC1  AP A   5       7.625  37.653  19.930  1.00  0.00          H   
+ATOM     45  HC2  AP A   5       8.002  37.721  18.189  1.00  0.00          H   
+ATOM     46  HO   AP A   5       4.702  36.289  21.687  1.00  0.00          H   
+ATOM     47  CA  ATP A   6       6.574  39.192  18.806  1.00  0.00          C   
+ATOM     48  CB  ATP A   6       5.818  39.596  20.004  1.00  0.00          C   
+ATOM     49  CC  ATP A   6       7.674  40.287  18.546  1.00  0.00          C   
+ATOM     50  OD1 ATP A   6       6.249  39.405  21.096  1.00  0.00          O   
+ATOM     51  OD2 ATP A   6       4.524  39.861  19.816  1.00  0.00          O   
+ATOM     52  HA1 ATP A   6       5.985  39.297  17.886  1.00  0.00          H   
+ATOM     53  HC1 ATP A   6       7.109  41.217  18.682  1.00  0.00          H   
+ATOM     54  HC2 ATP A   6       8.424  40.155  19.335  1.00  0.00          H   
+ATOM     55  HO  ATP A   6       4.295  39.677  18.888  1.00  0.00          H   
+ATOM     56  HC3 ATP A   6       8.085  40.312  17.530  1.00  0.00          H   
+TER      57      ATP A   6
+ENDMDL
+CONECT    1    6   10    2    3
+CONECT    2    1    4    5
+CONECT    3    7    8    1   11
+CONECT    4    2
+CONECT    5    9    2
+CONECT    6    1
+CONECT    7    3
+CONECT    8    3
+CONECT    9    5
+CONECT   10    1
+CONECT   11   16    3   13   12
+CONECT   12   14   15   11
+CONECT   13   17   18   20   11
+CONECT   14   12
+CONECT   15   19   12
+CONECT   16   11
+CONECT   17   13
+CONECT   18   13
+CONECT   19   15
+CONECT   20   25   13   22   21
+CONECT   21   23   24   20
+CONECT   22   26   27   29   20
+CONECT   23   21
+CONECT   24   28   21
+CONECT   25   20
+CONECT   26   22
+CONECT   27   22
+CONECT   28   24
+CONECT   29   34   22   31   30
+CONECT   30   32   33   29
+CONECT   31   35   36   38   29
+CONECT   32   30
+CONECT   33   37   30
+CONECT   34   29
+CONECT   35   31
+CONECT   36   31
+CONECT   37   33
+CONECT   38   43   31   40   39
+CONECT   39   41   42   38
+CONECT   40   44   45   47   38
+CONECT   41   39
+CONECT   42   46   39
+CONECT   43   38
+CONECT   44   40
+CONECT   45   40
+CONECT   46   42
+CONECT   47   52   40   48   49
+CONECT   48   47   50   51
+CONECT   49   53   54   56   47
+CONECT   50   48
+CONECT   51   55   48
+CONECT   52   47
+CONECT   53   49
+CONECT   54   49
+CONECT   55   51
+CONECT   56   49
+END
