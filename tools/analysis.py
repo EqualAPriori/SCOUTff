@@ -123,8 +123,6 @@ def GetRgRee(traj, DOP, NP, NAtomsPerChain = None, plotDir = 'RgRee_plots',
         except:
             pass
         print('...Rg and Ree plots will be saved in {}...\n'.format(plotDir))
-    RgStats = []
-    RgList = [] # warmed up data
     RgTimeseries = [range(traj.n_frames)]
     Rgheader = "Frame   "
     
@@ -135,8 +133,6 @@ def GetRgRee(traj, DOP, NP, NAtomsPerChain = None, plotDir = 'RgRee_plots',
 
     txtRg = ""
     
-    ReeStats = []
-    ReeList = [] # warmed up data
     ReeTimeseries = [range(traj.n_frames)]
     Reeheader = "Frame   "
    
@@ -161,8 +157,6 @@ def GetRgRee(traj, DOP, NP, NAtomsPerChain = None, plotDir = 'RgRee_plots',
         resIdLow = np.min(resId)
         resIdUp = np.max(resId)
         atom_indices = traj.topology.select('resid {} to {}'.format(resIdLow,resIdUp)) 
-        if j == 0:
-            print('Indices of atoms in chain {} \n{}'.format(j+1,atom_indices))
         mass_list = []
         for index in atom_indices:
             element = str(traj.topology.atom(index).element)
@@ -172,7 +166,11 @@ def GetRgRee(traj, DOP, NP, NAtomsPerChain = None, plotDir = 'RgRee_plots',
                 mass = 1.
             mass_list.append(mass)
         mass_list = np.array(mass_list)
-        
+        if j == 0:
+            print('Indices of atoms in chain {} \n{}'.format(j+1,atom_indices))       
+            print('Mass of atoms in a chain {}'.format(mass_list))
+        print('\nEvaluate Rg and Ree of chain {}/{}'.format(j+1,len(MoleculeResidueList)),end="\r")        
+
         '''=== Compute Rg ==='''
         Rg = md.compute_rg(traj.atom_slice(atom_indices),masses=mass_list) 
         RgTimeseries.append(Rg.tolist())
@@ -184,19 +182,20 @@ def GetRgRee(traj, DOP, NP, NAtomsPerChain = None, plotDir = 'RgRee_plots',
         Rgheader += 'Rg{}^2   '.format(j+1)
         np.savetxt('RgSqTimeSeries'+Ext, np.transpose(RgSqTimeseries), fmt = '%5.5f', header=RgSqheader )
  
-        #do stats
-        file = open(RgDatName+Ext,'r')
+        #do stats on Rg^2
+        file = open('RgSqTimeSeries'+Ext,'r')
         if autowarmup:
             warmup,Data,nwarmup = stats.autoWarmupMSER(file, j+1)
-            print ("Auto warmup detection with MSER-5 => ",nwarmup)
+            #print ("Auto warmup detection with MSER-5 => ",nwarmup)
         else:
             nwarmup = warmup
             warmup,Data = stats.extractData(file, j+1, warmup)
         (nsamples,(min,max),mean,semcc,kappa,unbiasedvar,autocor)=stats.doStats(warmup,Data, False ,False,'_{0}_mol{1}'.format(file.name,j+1))
-        RgList.extend(Data)
-        
-        lines = "" 
-        lines += '\n==== Rg for molecule {} ===='.format(j+1)
+        Data = Data[::int(kappa)] # get decorrelated samples
+        RgSqList.extend(Data)
+
+        lines = ""
+        lines += '\n==== Rg^2 for molecule {} ===='.format(j+1)
         lines += "\n  - Mean                    = {} +/- {}".format(mean,semcc)
         lines += "\n  - Equilibrated samples    = {}".format(nsamples)
         lines += "\n  - Correlation time        = {}".format(kappa)
@@ -205,16 +204,14 @@ def GetRgRee(traj, DOP, NP, NAtomsPerChain = None, plotDir = 'RgRee_plots',
         # note that there is no unbiased estimator for the population standard deviation. We can use sqrt(var) as a indicative estimator.
         lines += "\n  - S.D. (unbiased, biased) = {} {}".format(np.sqrt(unbiasedvar),np.std(Data,ddof=0)) # ddof is correction to 1/N...using ddof=1 returns regular reduced-bias estimator
         lines += "\n  - Min, Max                = {} {}\n".format(min,max)
-        print(lines)
         txtRg += lines
 
-        RgAvg = mean
-        RgStd = np.sqrt(unbiasedvar)
-        RgErr = semcc
-        CorrTime = kappa 
+        Avg = mean
+        Std = np.sqrt(unbiasedvar)
+        Err = semcc
+        CorrTime = kappa
         NUncorrSamples = nsamples/kappa
-        RgStats.append([RgAvg,RgStd,CorrTime,RgErr,NUncorrSamples])
-
+        RgSqStats.append([Avg,Std,CorrTime,Err,NUncorrSamples])
 
         ''' Plot Rg '''
         if plot:
@@ -225,25 +222,6 @@ def GetRgRee(traj, DOP, NP, NAtomsPerChain = None, plotDir = 'RgRee_plots',
             plt.ylabel('Radius-of-gryation')
             plt.savefig("{}/Rg{}.png".format(plotDir,j+1),bbox_inches='tight')
             plt.close()
-
-        #do stats on Rg^2
-        file = open('RgSqTimeSeries'+Ext,'r')
-        if autowarmup:
-            warmup,Data,nwarmup = stats.autoWarmupMSER(file, j+1)
-            print ("Auto warmup detection with MSER-5 => ",nwarmup)
-        else:
-            nwarmup = warmup
-            warmup,Data = stats.extractData(file, j+1, warmup)
-        (nsamples,(min,max),mean,semcc,kappa,unbiasedvar,autocor)=stats.doStats(warmup,Data, False ,False,'_{0}_mol{1}'.format(file.name,j+1))
-        Data = Data[::int(kappa)] # get decorrelated samples
-        RgSqList.extend(Data)
-
-        Avg = mean
-        Std = np.sqrt(unbiasedvar)
-        Err = semcc
-        CorrTime = kappa
-        NUncorrSamples = nsamples/kappa
-        RgSqStats.append([Avg,Std,CorrTime,Err,NUncorrSamples])
 
         '''=== Compute Ree ==='''
         atom_pairs = [np.min(atom_indices), np.max(atom_indices)]
@@ -259,19 +237,20 @@ def GetRgRee(traj, DOP, NP, NAtomsPerChain = None, plotDir = 'RgRee_plots',
         Reeheader += 'Ree{}^2   '.format(j+1)
         np.savetxt('ReeSqTimeSeries'+Ext, np.transpose(ReeSqTimeseries), fmt = '%5.5f', header=ReeSqheader )
                
-        #do stats
-        file = open(ReeDatName+Ext,'r')
+        #do stats on Ree^2
+        file = open('ReeSqTimeSeries'+Ext,'r')
         if autowarmup:
             warmup,Data,nwarmup = stats.autoWarmupMSER(file, j+1)
-            print ("Auto warmup detection with MSER-5 => ",nwarmup)
+            #print ("Auto warmup detection with MSER-5 => ",nwarmup)
         else:
             nwarmup = warmup
             warmup,Data = stats.extractData(file, j+1, warmup)
         (nsamples,(min,max),mean,semcc,kappa,unbiasedvar,autocor)=stats.doStats(warmup,Data, False ,False,'_{0}_mol{1}'.format(file.name,j+1))
-        ReeList.extend(Data)
-        
-        lines = "" 
-        lines += '\n==== Ree for molecule {} ===='.format(j+1)
+        Data = Data[::int(kappa)] # get decorrelated samples
+        ReeSqList.extend(Data)
+
+        lines = ""
+        lines += '\n==== Ree^2 for molecule {} ===='.format(j+1)
         lines += "\n  - Mean                    = {} +/- {}".format(mean,semcc)
         lines += "\n  - Equilibrated samples    = {}".format(nsamples)
         lines += "\n  - Correlation time        = {}".format(kappa)
@@ -280,15 +259,14 @@ def GetRgRee(traj, DOP, NP, NAtomsPerChain = None, plotDir = 'RgRee_plots',
         # note that there is no unbiased estimator for the population standard deviation. We can use sqrt(var) as a indicative estimator.
         lines += "\n  - S.D. (unbiased, biased) = {} {}".format(np.sqrt(unbiasedvar),np.std(Data,ddof=0)) # ddof is correction to 1/N...using ddof=1 returns regular reduced-bias estimator
         lines += "\n  - Min, Max                = {} {}\n".format(min,max)
-        print(lines)
         txtRg += lines
 
-        ReeAvg = mean
-        ReeStd = np.sqrt(unbiasedvar)
-        ReeErr = semcc
-        CorrTime = kappa 
+        Avg = mean
+        Std = np.sqrt(unbiasedvar)
+        Err = semcc
+        CorrTime = kappa
         NUncorrSamples = nsamples/kappa
-        ReeStats.append([ReeAvg,ReeStd,CorrTime,ReeErr,NUncorrSamples])
+        ReeSqStats.append([Avg,Std,CorrTime,Err,NUncorrSamples])
 
         ''' Plot Ree '''
         if plot:
@@ -299,44 +277,6 @@ def GetRgRee(traj, DOP, NP, NAtomsPerChain = None, plotDir = 'RgRee_plots',
             plt.ylabel('End-to-end distance')
             plt.savefig("{}/Ree{}.png".format(plotDir,j+1),bbox_inches='tight')
             plt.close()
-
-        #do stats on Ree^2
-        file = open('ReeSqTimeSeries'+Ext,'r')
-        if autowarmup:
-            warmup,Data,nwarmup = stats.autoWarmupMSER(file, j+1)
-            print ("Auto warmup detection with MSER-5 => ",nwarmup)
-        else:
-            nwarmup = warmup
-            warmup,Data = stats.extractData(file, j+1, warmup)
-        (nsamples,(min,max),mean,semcc,kappa,unbiasedvar,autocor)=stats.doStats(warmup,Data, False ,False,'_{0}_mol{1}'.format(file.name,j+1))
-        Data = Data[::int(kappa)] # get decorrelated samples
-        ReeSqList.extend(Data)
-
-        Avg = mean
-        Std = np.sqrt(unbiasedvar)
-        Err = semcc
-        CorrTime = kappa
-        NUncorrSamples = nsamples/kappa
-        ReeSqStats.append([Avg,Std,CorrTime,Err,NUncorrSamples])
-
-    #get averages of stats
-    RgStats = np.array(RgStats)
-    RgAvg = np.mean(RgStats[:,0])
-    RgStd = np.mean(RgStats[:,1])
-    RgCorrTime = np.mean(RgStats[:,2])
-    RgErr = np.mean(RgStats[:,3])
-    RgErr_Prop = np.sqrt(np.sum(RgStats[:,3]**2))/NP
-    RgCorrTimeErr = np.sqrt(np.var(RgStats[:,2])/len(RgStats[:,2]))
-    RgNUncorrSamples = np.mean(RgStats[:,4])
-
-    ReeStats = np.array(ReeStats)
-    ReeAvg = np.mean(ReeStats[:,0])
-    ReeStd = np.mean(ReeStats[:,1])
-    ReeCorrTime = np.mean(ReeStats[:,2])
-    ReeErr = np.mean(ReeStats[:,3])
-    ReeErr_Prop = np.sqrt(np.sum(ReeStats[:,3]**2))/NP
-    ReeCorrTimeErr = np.sqrt(np.var(ReeStats[:,2])/len(ReeStats[:,2]))
-    ReeNUncorrSamples = np.mean(ReeStats[:,4])
 
     # get RMS Rg and Ree 
     RgSqList = np.array(RgSqList)
@@ -362,10 +302,7 @@ def GetRgRee(traj, DOP, NP, NAtomsPerChain = None, plotDir = 'RgRee_plots',
     ReeRMSNUncorrSamples = np.mean(ReeSqStats[:,4])
     
     lines = ""
-    lines += '\n\n=====================\nTotal Rg average is: {0:2.3f} +/- {1:2.5f}'.format(RgAvg,RgErr)
-    lines += '\nTotal Rg avg. correlation time: {0:5.4f} +/- {1:5.6f}'.format(RgCorrTime, RgCorrTimeErr)
-    lines += '\n\nTotal Ree average is: {0:2.3f} +/- {1:2.5f}'.format(ReeAvg,ReeErr)
-    lines += '\nTotal Ree avg. correlation time: {0:5.4f} +/- {1:5.6f}'.format(ReeCorrTime, ReeCorrTimeErr)
+    lines += '\n\n====================='
     lines += '\n\nRMS of Rg is: {0:2.4f} +/- {1:2.5f}'.format(RgRMS, RgRMSErr)
     lines += '\nRMS Rg correlation time: {0:5.4f} +/- {1:5.6f}'.format(RgRMSCorrTime, RgRMSCorrTimeErr)
     lines += '\n\nRMS of Ree is: {0:2.4f} +/- {1:2.5f}'.format(ReeRMS, ReeRMSErr)
@@ -375,7 +312,7 @@ def GetRgRee(traj, DOP, NP, NAtomsPerChain = None, plotDir = 'RgRee_plots',
     txtRg += lines
     f = open(RgStatOutName+Ext,'w')
     f.write(txtRg)
-    return  RgAvg,RgStd,RgErr,RgCorrTime,RgCorrTimeErr,RgNUncorrSamples, ReeAvg,ReeStd,ReeErr,ReeCorrTime,ReeCorrTimeErr,ReeNUncorrSamples, RgRMS,ReeRMS,RgRMSErr,ReeRMSErr,RgRMSCorrTime,RgRMSCorrTimeErr,RgRMSNUncorrSamples,ReeRMSCorrTime,ReeRMSCorrTimeErr,ReeRMSNUncorrSamples,RgRMSStd,ReeRMSStd
+    return RgRMS,ReeRMS,RgRMSErr,ReeRMSErr,RgRMSCorrTime,RgRMSCorrTimeErr,RgRMSNUncorrSamples,ReeRMSCorrTime,ReeRMSCorrTimeErr,ReeRMSNUncorrSamples,RgRMSStd,ReeRMSStd
 
 def RMSBond(traj, backboneAtoms = ['C1','C2'], resid = [], autowarmup=True, warmup=100):
     """backboneAtoms: atom names of heavy backbone atoms in the topology"""
@@ -432,11 +369,10 @@ def GetStats(trajFile, top, NP, ThermoLog, DOP = 10, NAtomsPerChain = None,
     
     if NP > 0:
         resid = range(res0Id,res0Id +  NP * DOP - 1) # residues indices of polymer chains
-        RgAvg,RgStd,RgErr,RgCorrTime,RgCorrTimeErr,RgNUncorrSamples, ReeAvg,ReeStd,ReeErr,ReeCorrTime,ReeCorrTimeErr,ReeNUncorrSamples,RgRMS, ReeRMS,RgRMSErr,ReeRMSErr,RgRMSCorrTime,RgRMSCorrTimeErr,RgRMSNUncorrSamples,ReeRMSCorrTime,ReeRMSCorrTimeErr,ReeRMSNUncorrSamples,RgRMSStd,ReeRMSStd = GetRgRee(traj, DOP, NP, NAtomsPerChain = NAtomsPerChain,
+        RgRMS,ReeRMS,RgRMSErr,ReeRMSErr,RgRMSCorrTime,RgRMSCorrTimeErr,RgRMSNUncorrSamples,ReeRMSCorrTime,ReeRMSCorrTimeErr,ReeRMSNUncorrSamples,RgRMSStd,ReeRMSStd = GetRgRee(traj, DOP, NP, NAtomsPerChain = NAtomsPerChain,
              RgDatName = RgDatName, ReeDatName = ReeDatName, RgStatOutName = RgStatOutName, Ext=Ext,
              res0Id = res0Id, autowarmup = autowarmup, warmup = warmup, plot = plot)
-#        txt += 'Rg  %8.5f  %8.5f  %8.5f  %8.5f  %8.5f  %i' %(RgAvg,RgStd,RgErr,RgCorrTime,RgCorrTimeErr,RgNUncorrSamples)
-#        txt += '\nRee  %8.5f  %8.5f  %8.5f  %8.5f  %8.5f  %i' %(ReeAvg,ReeStd,ReeErr,ReeCorrTime,ReeCorrTimeErr,ReeNUncorrSamples)
+
         txt += 'RMSRg  %8.5f  %8.5f  %8.5f %8.5f  %8.5f  %i'%(RgRMS,RgRMSStd,RgRMSErr,RgRMSCorrTime,RgRMSCorrTimeErr,RgRMSNUncorrSamples)
         txt += '\nRMSRee  %8.5f  %8.5f  %8.5f %8.5f  %8.5f  %i'%(ReeRMS,ReeRMSStd,ReeRMSErr,ReeRMSCorrTime,ReeRMSCorrTimeErr,ReeRMSNUncorrSamples)
         
