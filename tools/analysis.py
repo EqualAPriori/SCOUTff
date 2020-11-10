@@ -169,7 +169,7 @@ def GetRgRee(traj, DOP, NP, NAtomsPerChain = None, plotDir = 'RgRee_plots',
         if j == 0:
             print('Indices of atoms in chain {} \n{}'.format(j+1,atom_indices))       
             print('Mass of atoms in a chain {}'.format(mass_list))
-        print('\nEvaluate Rg and Ree of chain {}/{}'.format(j+1,len(MoleculeResidueList)),end="\r")        
+        print('Evaluate Rg and Ree of chain {}/{}'.format(j+1,len(MoleculeResidueList)),end="\r")        
 
         '''=== Compute Rg ==='''
         Rg = md.compute_rg(traj.atom_slice(atom_indices),masses=mass_list) 
@@ -191,7 +191,7 @@ def GetRgRee(traj, DOP, NP, NAtomsPerChain = None, plotDir = 'RgRee_plots',
             nwarmup = warmup
             warmup,Data = stats.extractData(file, j+1, warmup)
         (nsamples,(min,max),mean,semcc,kappa,unbiasedvar,autocor)=stats.doStats(warmup,Data, False ,False,'_{0}_mol{1}'.format(file.name,j+1))
-        Data = Data[::int(kappa)] # get decorrelated samples
+        Data = Data[::int(np.ceil(kappa))] # get decorrelated samples
         RgSqList.extend(Data)
 
         lines = ""
@@ -246,7 +246,7 @@ def GetRgRee(traj, DOP, NP, NAtomsPerChain = None, plotDir = 'RgRee_plots',
             nwarmup = warmup
             warmup,Data = stats.extractData(file, j+1, warmup)
         (nsamples,(min,max),mean,semcc,kappa,unbiasedvar,autocor)=stats.doStats(warmup,Data, False ,False,'_{0}_mol{1}'.format(file.name,j+1))
-        Data = Data[::int(kappa)] # get decorrelated samples
+        Data = Data[::int(np.ceil(kappa))] # get decorrelated samples
         ReeSqList.extend(Data)
 
         lines = ""
