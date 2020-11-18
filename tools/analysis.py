@@ -191,7 +191,7 @@ def GetRgRee(traj, DOP, NP, NAtomsPerChain = None, plotDir = 'RgRee_plots',
             nwarmup = warmup
             warmup,Data = stats.extractData(file, j+1, warmup)
         (nsamples,(min,max),mean,semcc,kappa,unbiasedvar,autocor)=stats.doStats(warmup,Data, False ,False,'_{0}_mol{1}'.format(file.name,j+1))
-        Data = Data[::int(np.ceil(kappa))] # get decorrelated samples
+        Data = Data[::int(np.max([1.,kappa]))] # get decorrelated samples
         RgSqList.extend(Data)
 
         lines = ""
@@ -246,7 +246,7 @@ def GetRgRee(traj, DOP, NP, NAtomsPerChain = None, plotDir = 'RgRee_plots',
             nwarmup = warmup
             warmup,Data = stats.extractData(file, j+1, warmup)
         (nsamples,(min,max),mean,semcc,kappa,unbiasedvar,autocor)=stats.doStats(warmup,Data, False ,False,'_{0}_mol{1}'.format(file.name,j+1))
-        Data = Data[::int(np.ceil(kappa))] # get decorrelated samples
+        Data = Data[::int(np.max([1.,kappa]))]
         ReeSqList.extend(Data)
 
         lines = ""
@@ -359,10 +359,7 @@ def GetStats(trajFile, top, NP, ThermoLog, DOP = 10, NAtomsPerChain = None,
     """
     txt = '# Obs.    Avg.\tS.D.\tStdErr.\tCorr.\tStdErr.\tUncorr.Samples\n'
     traj = md.load(trajFile, top=top, stride = stride)
-    try:
-        traj.make_molecules_whole(inplace=True, sorted_bonds=None) # Automatically finds the bonds from the topology file
-    except:
-        pass
+    traj.make_molecules_whole(inplace=True, sorted_bonds=None)
     if fi == 'lammps' and unit == 'nonDim':
         traj.xyz *= 10.
         traj.unitcell_lengths *= 10
