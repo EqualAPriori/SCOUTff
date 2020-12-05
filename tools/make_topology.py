@@ -200,7 +200,9 @@ positions = sys_pdb.positions
 
 
 simulation.context.setPositions(positions)
-app.pdbfile.PDBFile.writeModel(simulation.topology,positions,open('{}_packmol.pdb'.format(prefix),'w'))
+app.pdbfile.PDBFile.writeHeader(simulation.topology,open('{}_packmol.pdb'.format(prefix),'w'))
+app.pdbfile.PDBFile.writeModel(simulation.topology,positions,open('{}_packmol.pdb'.format(prefix),'a'))
+app.pdbfile.PDBFile.writeFooter(simulation.topology,open('{}_packmol.pdb'.format(prefix),'a'))
 simulation.context.setPeriodicBoxVectors(periodic_box_vectors[0],periodic_box_vectors[1],periodic_box_vectors[2]) # Set the periodic box vectors
 
 
@@ -232,8 +234,9 @@ print('post minimization potential energy: {} \n'.format(simulation.context.getS
 time_end = time.time()
 print("done with minimization in {} minutes\n".format((time_end-time_start)/60.))
 positions = simulation.context.getState(getPositions=True).getPositions()       
-app.pdbfile.PDBFile.writeModel(simulation.topology,positions,open('{}_post_minimization.pdb'.format(prefix),'w'))
-
+app.pdbfile.PDBFile.writeHeader(simulation.topology,open('{}_post_minimization.pdb'.format(prefix),'w'))
+app.pdbfile.PDBFile.writeModel(simulation.topology,positions,open('{}_post_minimization.pdb'.format(prefix),'a'))
+app.pdbfile.PDBFile.writeFooter(simulation.topology,open('{}_post_minimization.pdb'.format(prefix),'a'))
 
 # === Setup Run ===
 simulation.reporters.append(app.statedatareporter.StateDataReporter('{}_thermo.out'.format(prefix), thermo_report_freq, step=True, potentialEnergy=True, kineticEnergy=True, totalEnergy=True, temperature=True, volume=True, density=True, speed=True))
@@ -244,7 +247,9 @@ simulation.step(equilibration_steps)
 positions = simulation.context.getState(getPositions=True).getPositions()       
 time_end = time.time()
 print("done with equilibration in {} minutes\n".format((time_end-time_start)/60.))
-app.pdbfile.PDBFile.writeModel(simulation.topology,positions,open('{}_post_equilibration.pdb'.format(prefix),'w'))
+app.pdbfile.PDBFile.writeHeader(simulation.topology,open('{}_post_equilibration.pdb'.format(prefix),'w'))
+app.pdbfile.PDBFile.writeModel(simulation.topology,positions,open('{}_post_equilibration.pdb'.format(prefix),'a'))
+app.pdbfile.PDBFile.writeFooter(simulation.topology,open('{}_post_equilibration.pdb'.format(prefix),'a'))
 
 # === Run and save output, with connectivity ===
 time_start = time.time()

@@ -143,20 +143,55 @@ def GetRgRee(traj, DOP, NP, NAtomsPerChain = None, plotDir = 'RgRee_plots',
 
     #get indices of residues in all chains    
     MoleculeResidueList = []
+    BlockResName = []
     if not NAtomsPerChain:
         #number residues per chain = DOP (for AA systems)
         for j in range(NP):
             resId = range(res0Id + j*DOP, res0Id + (j+1)*DOP)
             MoleculeResidueList.append(resId)
+            resname = []
+            for res in traj.topology.residues:
+                if res.index in resId:
+                    resname.append(res.name)
+            #check if diblock
+            if j == 0:
+                resname1 = resname[0]
+                resname2 = resname[-1]
+                i1 = np.where(np.array(resname) == resname1)[0]
+                i2 = np.where(np.array(resname) == resname2)[0]
+                if np.min(i1) == np.min(resId) and int(np.min(i2)-np.max(i1)) == 1 and np.max(i2) == np.max(resId):
+                    block = True
+                    BlockResName = [resname1,resname2]
+                    RgSqList_b = [[],[]]  
+                    RgSqStats_b = [[],[]]
+                    print('Detect diblock:\n block 1: {} {}-mer, block 2: {} {}-mer'.format(resname1,len(i1),resname2,len(i2)))
+                else:
+                    block = False
     else:
         #1 residue per chain (for CG system)
         x = range(res0Id, res0Id + NP)
         MoleculeResidueList = [[a] for a in x]
-        
+   
     for j,resId in enumerate(MoleculeResidueList):
         resIdLow = np.min(resId)
         resIdUp = np.max(resId)
         atom_indices = traj.topology.select('resid {} to {}'.format(resIdLow,resIdUp)) 
+        if block:
+            atom_indices_b = []
+            mass_list_b = []
+            for resname in BlockResName: 
+                ii = traj.topology.select("resid {} to {} and resname '{}'".format(resIdLow,resIdUp,resname))
+                atom_indices_b.append(ii)
+                tmp = []
+                for index in ii:
+                    element = str(traj.topology.atom(index).element)
+                    try:
+                        mass = ElementDictionary[element]
+                    except:
+                        mass = 1.
+                    tmp.append(mass)
+                tmp = np.array(tmp)
+                mass_list_b.append(tmp)                     
         mass_list = []
         for index in atom_indices:
             element = str(traj.topology.atom(index).element)
@@ -181,7 +216,7 @@ def GetRgRee(traj, DOP, NP, NAtomsPerChain = None, plotDir = 'RgRee_plots',
         RgSqTimeseries.append(RgSq.tolist())  
         Rgheader += 'Rg{}^2   '.format(j+1)
         np.savetxt('RgSqTimeSeries'+Ext, np.transpose(RgSqTimeseries), fmt = '%5.5f', header=RgSqheader )
- 
+
         #do stats on Rg^2
         file = open('RgSqTimeSeries'+Ext,'r')
         if autowarmup:
@@ -222,7 +257,38 @@ def GetRgRee(traj, DOP, NP, NAtomsPerChain = None, plotDir = 'RgRee_plots',
             plt.ylabel('Radius-of-gryation')
             plt.savefig("{}/Rg{}.png".format(plotDir,j+1),bbox_inches='tight')
             plt.close()
+        
+        ''' Rg of blocks '''
+        if block:
+            Rg_b = []
+            for i,ai in enumerate(atom_indices_b):
+                Rg_tmp = md.compute_rg(traj.atom_slice(ai),masses=mass_list_b[i])
+                Rg_b.append(Rg_tmp)
+            Rg_b = np.array(Rg_b)
+            RgSq_b = Rg_b**2.
+            for i,RgSq in enumerate(RgSq_b):
+                data = [range(0,len(RgSq))]
+                data.append(RgSq.tolist())
+                np.savetxt('tmp.dat',np.transpose(data),fmt = '%5.5f')
+                #do stats on Rg^2
+                file = open('tmp.dat','r')
+                if autowarmup:
+                    warmup,Data,nwarmup = stats.autoWarmupMSER(file, 1)
 
+                else:
+                    nwarmup = warmup
+                    warmup,Data = stats.extractData(file, j0, warmup)
+                (nsamples,(min,max),mean,semcc,kappa,unbiasedvar,autocor)=stats.doStats(warmup,Data, False ,False,'_{0}_mol{1}'.format(file.name,1))
+                Data = Data[::int(np.max([1.,kappa]))] # get decorrelated samples
+                RgSqList_b[i].extend(Data)
+
+                Avg = mean
+                Std = np.sqrt(unbiasedvar)
+                Err = semcc
+                CorrTime = kappa
+                NUncorrSamples = nsamples/kappa
+                RgSqStats_b[i].append([Avg,Std,CorrTime,Err,NUncorrSamples])
+            os.remove("tmp.dat")
         '''=== Compute Ree ==='''
         atom_pairs = [np.min(atom_indices), np.max(atom_indices)]
         Ree = md.compute_distances(traj,atom_pairs= [atom_pairs], periodic=False, opt=True)
@@ -289,7 +355,28 @@ def GetRgRee(traj, DOP, NP, NAtomsPerChain = None, plotDir = 'RgRee_plots',
     RgRMSCorrTime = np.mean(RgSqStats[:,2])
     RgRMSCorrTimeErr = np.sqrt(np.var(RgSqStats[:,2])/len(RgSqStats[:,2]))
     RgRMSNUncorrSamples = np.mean(RgSqStats[:,4])
-     
+    
+    #Rg of blocks
+    RgRMS_b = []
+    RgRMSErr_b = []
+    RgRMSStd_b = []
+    RgRMSCorrTime_b = []
+    RgRMSCorrTimeErr_b=[]
+    RgRMSNUncorrSamples_b=[]
+    if block:
+        for i,resname in enumerate(BlockResName):
+            RgSqList = np.array(RgSqList_b[i])
+            RgRMS_b.append(np.sqrt(np.mean(RgSqList)))
+            Err = scipy.stats.sem(RgSqList)
+            RgRMSErr_b.append(1./2.*Err/RgRMS_b[i])
+            Std = np.std(RgSqList,ddof=1)
+            RgRMSStd_b.append(1./2.*Std/RgRMS_b[i])
+            RgSqStats = np.array(RgSqStats_b[i])  
+            RgRMSCorrTime_b.append(np.mean(RgSqStats[:,2]))
+            RgRMSCorrTimeErr_b.append(np.sqrt(np.var(RgSqStats[:,2])/len(RgSqStats[:,2])))
+            RgRMSNUncorrSamples_b.append(np.mean(RgSqStats[:,4]))
+
+    #Ree
     ReeSqList = np.array(ReeSqList)
     ReeRMS = np.sqrt(np.mean(ReeSqList))
     ReeSqErr = scipy.stats.sem(ReeSqList)
@@ -307,12 +394,15 @@ def GetRgRee(traj, DOP, NP, NAtomsPerChain = None, plotDir = 'RgRee_plots',
     lines += '\nRMS Rg correlation time: {0:5.4f} +/- {1:5.6f}'.format(RgRMSCorrTime, RgRMSCorrTimeErr)
     lines += '\n\nRMS of Ree is: {0:2.4f} +/- {1:2.5f}'.format(ReeRMS, ReeRMSErr)
     lines += '\nRMS Ree correlation time: {0:5.4f} +/- {1:5.6f}'.format(ReeRMSCorrTime, ReeRMSCorrTimeErr)
-    
-    print(lines)
+    if block:
+        for i,resname in enumerate(BlockResName):
+            lines += '\n\nRMS of Rg for block %i-%s is: %2.4f +/- %2.5f'%(i+1,resname,RgRMS_b[i], RgRMSErr_b[i])
+            lines += '\nRMS Rg correlation time: {0:5.4f} +/- {1:5.6f}'.format(RgRMSCorrTime_b[i], RgRMSCorrTimeErr_b[i]) 
+    print(lines+'\n')
     txtRg += lines
     f = open(RgStatOutName+Ext,'w')
     f.write(txtRg)
-    return RgRMS,ReeRMS,RgRMSErr,ReeRMSErr,RgRMSCorrTime,RgRMSCorrTimeErr,RgRMSNUncorrSamples,ReeRMSCorrTime,ReeRMSCorrTimeErr,ReeRMSNUncorrSamples,RgRMSStd,ReeRMSStd
+    return RgRMS,ReeRMS,RgRMSErr,ReeRMSErr,RgRMSCorrTime,RgRMSCorrTimeErr,RgRMSNUncorrSamples,ReeRMSCorrTime,ReeRMSCorrTimeErr,ReeRMSNUncorrSamples,RgRMSStd,ReeRMSStd,RgRMS_b,RgRMSErr_b,RgRMSStd_b,RgRMSCorrTime_b,RgRMSCorrTimeErr_b,RgRMSNUncorrSamples_b,BlockResName
 
 def RMSBond(traj, backboneAtoms = ['C1','C2'], resid = [], autowarmup=True, warmup=100):
     """backboneAtoms: atom names of heavy backbone atoms in the topology"""
@@ -332,23 +422,26 @@ def RMSBond(traj, backboneAtoms = ['C1','C2'], resid = [], autowarmup=True, warm
     IsBackbone = np.array(IsBackbone,bool)
     pairs = np.array([[bond[0].index,bond[1].index] for bond in top.bonds])
     pairs = pairs[IsBackbone]
-    
-    l = md.compute_distances(traj,pairs)
-    l = l.flatten()
+
+    if len(pairs>0): 
+        l = md.compute_distances(traj,pairs)
+        l = l.flatten()
         
-    lAvg = np.mean(l)
-    lStd = np.std(l)
-    lErr = scipy.stats.sem(l)
+        lAvg = np.mean(l)
+        lStd = np.std(l)
+        lErr = scipy.stats.sem(l)
     
-    # get RMS bond length     
-    lRMS = np.sqrt(np.mean(l**2.))
-    lSqErr = scipy.stats.sem(l**2)
-    lRMSErr = 1./2.*lSqErr/lRMS
+        # get RMS bond length     
+        lRMS = np.sqrt(np.mean(l**2.))
+        lSqErr = scipy.stats.sem(l**2)
+        lRMSErr = 1./2.*lSqErr/lRMS
     
-    print('\n\nRMS bond length: {0:2.5f} +/- {1:2.5f}'.format(lRMS,lRMSErr))
-    print('from heavy atoms {}\n'.format(backboneAtoms))
-    return lAvg,lStd,lErr, lRMS, lRMSErr     
-        
+        print('\n\nRMS bond length: {0:2.5f} +/- {1:2.5f}'.format(lRMS,lRMSErr))
+        print('from heavy atoms {}\n'.format(backboneAtoms))
+        return lAvg,lStd,lErr, lRMS, lRMSErr     
+    else:
+        return 'n/a','n/a','n/a','n/a','n/a'
+    
 def GetStats(trajFile, top, NP, ThermoLog, DOP = 10, NAtomsPerChain = None,  
              backboneAtoms= ['C1','C2'], monMass={}, nMons={}, density=None,
              StatsFName = 'AllStats.dat', RgDatName = 'RgTimeSeries', ReeDatName = 'ReeTimeSeries',RgStatOutName = 'RgReeStats', Ext='.dat',  
@@ -359,19 +452,25 @@ def GetStats(trajFile, top, NP, ThermoLog, DOP = 10, NAtomsPerChain = None,
     """
     txt = '# Obs.    Avg.\tS.D.\tStdErr.\tCorr.\tStdErr.\tUncorr.Samples\n'
     traj = md.load(trajFile, top=top, stride = stride)
-    traj.make_molecules_whole(inplace=True, sorted_bonds=None)
+    try:
+        traj.make_molecules_whole(inplace=True, sorted_bonds=None)
+    except:
+        pass
     if fi == 'lammps' and unit == 'nonDim':
         traj.xyz *= 10.
         traj.unitcell_lengths *= 10
     
     if NP > 0:
         resid = range(res0Id,res0Id +  NP * DOP - 1) # residues indices of polymer chains
-        RgRMS,ReeRMS,RgRMSErr,ReeRMSErr,RgRMSCorrTime,RgRMSCorrTimeErr,RgRMSNUncorrSamples,ReeRMSCorrTime,ReeRMSCorrTimeErr,ReeRMSNUncorrSamples,RgRMSStd,ReeRMSStd = GetRgRee(traj, DOP, NP, NAtomsPerChain = NAtomsPerChain,
+        RgRMS,ReeRMS,RgRMSErr,ReeRMSErr,RgRMSCorrTime,RgRMSCorrTimeErr,RgRMSNUncorrSamples,ReeRMSCorrTime,ReeRMSCorrTimeErr,ReeRMSNUncorrSamples,RgRMSStd,ReeRMSStd,RgRMS_b,RgRMSErr_b,RgRMSStd_b,RgRMSCorrTime_b,RgRMSCorrTimeErr_b,RgRMSNUncorrSamples_b,BlockResName = GetRgRee(traj, DOP, NP, NAtomsPerChain = NAtomsPerChain,
              RgDatName = RgDatName, ReeDatName = ReeDatName, RgStatOutName = RgStatOutName, Ext=Ext,
              res0Id = res0Id, autowarmup = autowarmup, warmup = warmup, plot = plot)
 
         txt += 'RMSRg  %8.5f  %8.5f  %8.5f %8.5f  %8.5f  %i'%(RgRMS,RgRMSStd,RgRMSErr,RgRMSCorrTime,RgRMSCorrTimeErr,RgRMSNUncorrSamples)
         txt += '\nRMSRee  %8.5f  %8.5f  %8.5f %8.5f  %8.5f  %i'%(ReeRMS,ReeRMSStd,ReeRMSErr,ReeRMSCorrTime,ReeRMSCorrTimeErr,ReeRMSNUncorrSamples)
+        if len(BlockResName)>0:
+            for i,resname in enumerate(BlockResName):
+                txt += '\nRMSRg block %i-%s  %8.5f  %8.5f  %8.5f %8.5f  %8.5f  %i'%(i+1,resname,RgRMS_b[i],RgRMSStd_b[i],RgRMSErr_b[i],RgRMSCorrTime_b[i],RgRMSCorrTimeErr_b[i],RgRMSNUncorrSamples_b[i])
         
     if density_col != None:
         if cols == None:
@@ -395,12 +494,16 @@ def GetStats(trajFile, top, NP, ThermoLog, DOP = 10, NAtomsPerChain = None,
     txt2 = ""
     if backboneAtoms and NP > 0:
         lAvg,lStd,lErr,lRMS, lRMSErr = RMSBond(traj, backboneAtoms=backboneAtoms, resid=resid)
-        txt +=  '\n%s  %8.8f  %8.8f  %8.5f' %('Bond', lAvg, lStd, lErr)
+        try:
+            txt +=  '\n%s  %8.8f  %8.8f  %8.5f' %('Bond', lAvg, lStd, lErr)
+        except:
+            txt +=  '\n%s  %s  %s  %s' %('Bond', lAvg, lStd, lErr)
         #calculate characteristic ratio
-        n = len(backboneAtoms)*DOP - 1 # number of backbone bonds
-        Cn = ReeRMS**2 / (n * lRMS**2)
-        txt2 += '\n\nRMS bond length between heavy atoms: %8.8f +/- %8.8f' %(lRMS,lRMSErr)
-        txt2 += '\nCharacteristic ratio:  %8.8f' %(Cn)
+        if isinstance(lRMS,float):
+            n = len(backboneAtoms)*DOP - 1 # number of backbone bonds
+            Cn = ReeRMS**2 / (n * lRMS**2)
+            txt2 += '\n\nRMS bond length between heavy atoms: %8.8f +/- %8.8f' %(lRMS,lRMSErr)
+            txt2 += '\nCharacteristic ratio:  %8.8f' %(Cn)
         
     # statistical segment length
     Vref1 = 0.1 #nm^3
