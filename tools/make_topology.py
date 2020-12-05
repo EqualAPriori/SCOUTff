@@ -206,6 +206,8 @@ simulation.context.setPeriodicBoxVectors(periodic_box_vectors[0],periodic_box_ve
 
 simulation.context.applyConstraints(1e-8)
 
+print('Current working directory:')
+print(os.getcwd())
 
 # By default PME turns on tail correction. Manually turn off if requested
 print('setting tail correction to {}'.format(use_tail))
