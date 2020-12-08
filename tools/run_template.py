@@ -27,6 +27,11 @@ import time
 import os
 from subprocess import call
 
+def write_full_pdb(filename,topology,positions):
+    app.pdbfile.PDBFile.writeHeader(topology,open(filename,'w'))
+    app.pdbfile.PDBFile.writeModel(topology,positions,open(filename,'a'))
+    app.pdbfile.PDBFile.writeFooter(topology,open(filename,'a'))
+
 # === Simulation Options ===
 pressure        = 1.0  # bar
 temperature     = __TEMP__ # kelvin
@@ -120,7 +125,10 @@ else: #ff_list should be defined
     barostat = mm.MonteCarloBarostat( pressure*unit.bar, temperature_anneal*unit.kelvin, barostatfreq )
     #barostat = mm.MonteCarloBarostat( pressure, temperature, barostatfreq )
     if run_npt:
+        print('NPT run')
         system.addForce(barostat)
+    else:
+        print('NVT run')
 
 
 integrator = mm.LangevinIntegrator(temperature_anneal*unit.kelvin, friction, dt*unit.picosecond)
@@ -148,8 +156,10 @@ else:
     positions = sys_pdb.positions
 
     simulation.context.setPositions(positions)
-    app.pdbfile.PDBFile.writeModel(simulation.topology,positions,open('{}_initial.pdb'.format(prefix),'w'))
     simulation.context.setPeriodicBoxVectors(periodic_box_vectors[0],periodic_box_vectors[1],periodic_box_vectors[2]) # Set the periodic box vectors
+    #app.pdbfile.PDBFile.writeModel(simulation.topology,positions,open('{}_initial.pdb'.format(prefix),'w'))
+    simulation.topology.setPeriodicBoxVectors( simulation.context.getState().getPeriodicBoxVectors() )
+    write_full_pdb('{}_initial.pdb'.format(prefix),simulation.topology,positions)
 
     simulation.context.applyConstraints(1e-8)
 
@@ -178,7 +188,9 @@ print('post minimization potential energy: {} \n'.format(simulation.context.getS
 time_end = time.time()
 print("done with minimization in {} minutes\n".format((time_end-time_start)/60.))
 positions = simulation.context.getState(getPositions=True).getPositions()       
-app.pdbfile.PDBFile.writeModel(simulation.topology,positions,open('{}_post_minimization.pdb'.format(prefix),'w'))
+#app.pdbfile.PDBFile.writeModel(simulation.topology,positions,open('{}_post_minimization.pdb'.format(prefix),'w'))
+simulation.topology.setPeriodicBoxVectors( simulation.context.getState().getPeriodicBoxVectors() )
+write_full_pdb('{}_post_minimization.pdb'.format(prefix),simulation.topology,positions)
 
 
 # === Setup Runs ===
@@ -188,11 +200,13 @@ print('\n=== Annealing ===')
 simulation.reporters.append(app.statedatareporter.StateDataReporter('{}_thermo_annealing.out'.format(prefix), thermo_report_freq, step=True, potentialEnergy=True, kineticEnergy=True, totalEnergy=True, temperature=True, volume=True, density=True, speed=True, separator='\t'))
 print('\nannealing at temperature to {} '.format(temperature_anneal))
 time_start = time.time()
-simulation.step(equilibration_steps)
+simulation.step(annealing_steps)
 positions = simulation.context.getState(getPositions=True).getPositions()       
 time_end = time.time()
 print("done with annealing in {} minutes\n".format((time_end-time_start)/60.))
-app.pdbfile.PDBFile.writeModel(simulation.topology,positions,open('{}_post_annealing.pdb'.format(prefix),'w'))
+#app.pdbfile.PDBFile.writeModel(simulation.topology,positions,open('{}_post_annealing.pdb'.format(prefix),'w'))
+simulation.topology.setPeriodicBoxVectors( simulation.context.getState().getPeriodicBoxVectors() )
+write_full_pdb('{}_post_annealing.pdb'.format(prefix),simulation.topology,positions)
 simulation.reporters.pop()
 
 
@@ -201,13 +215,18 @@ print('\n=== Equilibrating ===')
 simulation.reporters.append(app.statedatareporter.StateDataReporter('{}_thermo_equilibration.out'.format(prefix), thermo_report_freq, step=True, potentialEnergy=True, kineticEnergy=True, totalEnergy=True, temperature=True, volume=True, density=True, speed=True, separator='\t'))
 print('\nupdating temperature to {} '.format(temperature))
 simulation.integrator.setTemperature(temperature) #assumes Langevin
-simulation.context.setParameter(mm.MonteCarloBarostat.Temperature(), temperature)
+if run_npt:
+    simulation.context.setParameter(mm.MonteCarloBarostat.Temperature(), temperature)
 time_start = time.time()
 simulation.step(equilibration_steps)
 positions = simulation.context.getState(getPositions=True).getPositions()       
 time_end = time.time()
 print("done with equilibration in {} minutes\n".format((time_end-time_start)/60.))
-app.pdbfile.PDBFile.writeModel(simulation.topology,positions,open('{}_post_equilibration.pdb'.format(prefix),'w'))
+simulation.topology.setPeriodicBoxVectors( simulation.context.getState().getPeriodicBoxVectors() )
+write_full_pdb('{}_post_equilibration.pdb'.format(prefix),simulation.topology,positions)
+#app.pdbfile.PDBFile.writeHeader(simulation.topology,open('{}_post_equilibration.pdb'.format(prefix),'w'))
+#app.pdbfile.PDBFile.writeModel(simulation.topology,positions,open('{}_post_equilibration.pdb'.format(prefix),'a'))
+#app.pdbfile.PDBFile.writeFooter(simulation.topology,open('{}_post_equilibration.pdb'.format(prefix),'a'))
 
 # === Run and save output, with connectivity ===
 print('\n=== Production run ===')
@@ -230,9 +249,10 @@ print("done with production in {} minutes\n".format((time_end-time_start)/60.))
 
 
 simulation.topology.setPeriodicBoxVectors( simulation.context.getState().getPeriodicBoxVectors() )
-app.pdbfile.PDBFile.writeHeader(simulation.topology,open('{}_post_production.pdb'.format(prefix),'w'))
-app.pdbfile.PDBFile.writeModel(simulation.topology,positions,open('{}_post_production.pdb'.format(prefix),'a'))
-app.pdbfile.PDBFile.writeFooter(simulation.topology,open('{}_post_production.pdb'.format(prefix),'a'))
+write_full_pdb('{}_post_production.pdb'.format(prefix),simulation.topology,positions)
+#app.pdbfile.PDBFile.writeHeader(simulation.topology,open('{}_post_production.pdb'.format(prefix),'w'))
+#app.pdbfile.PDBFile.writeModel(simulation.topology,positions,open('{}_post_production.pdb'.format(prefix),'a'))
+#app.pdbfile.PDBFile.writeFooter(simulation.topology,open('{}_post_production.pdb'.format(prefix),'a'))
 
 
 
