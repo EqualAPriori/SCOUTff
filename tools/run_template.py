@@ -37,7 +37,6 @@ pressure        = 1.0  # bar
 temperature     = __TEMP__ # kelvin
 temperature_anneal = __TEMPANNEAL__ #kelvin
 barostatfreq    = 25
-run_npt         = True
 use_gpu         = True
 
 #nonbonded_method = app.LJPME #set below
@@ -68,8 +67,10 @@ parser.add_argument('-sysxml', type=str, default=None, help = 'system xml')
 parser.add_argument('-chkstate', type=str, default=None, help = 'checkpoint or state to load')
 parser.add_argument('-PME', action='store_true', help = 'LJPME is default, toggle to enable PME')
 parser.add_argument('-tail', action='store_true', help = 'tail correction is false by default, toggle to turn on')
+parser.add_argument('-NVT', action='store_true', help = 'NVT, turn off barostat')
 args = parser.parse_args()
 
+run_npt         = not args.NVT
 prefix = args.prefix
 if args.L is not None:
     print('CAUTION: (cubic) box L {} entered, overriding boxfile {}'.format(args.L, args.boxfile))
@@ -232,7 +233,11 @@ write_full_pdb('{}_post_equilibration.pdb'.format(prefix),simulation.topology,po
 print('\n=== Production run ===')
 simulation.reporters.append(app.statedatareporter.StateDataReporter('{}_thermo_production.out'.format(prefix), thermo_report_freq, step=True, potentialEnergy=True, kineticEnergy=True, totalEnergy=True, temperature=True, volume=True, density=True, speed=True, separator='\t'))
 time_start = time.time()
-simulation.reporters.append(app.dcdreporter.DCDReporter('{}_output.dcd'.format(prefix), dcd_report_freq))
+if run_npt:
+    simulation.reporters.append(app.dcdreporter.DCDReporter('{}_output.dcd'.format(prefix), dcd_report_freq, enforcePeriodicBox=False))
+else:#nvt
+    simulation.reporters.append(app.dcdreporter.DCDReporter('{}_output.dcd'.format(prefix), dcd_report_freq))
+
 while production_steps > 0:
     nsteps = min( production_steps, 10*dcd_report_freq )
     simulation.step(nsteps)
