@@ -234,9 +234,9 @@ print('\n=== Production run ===')
 simulation.reporters.append(app.statedatareporter.StateDataReporter('{}_thermo_production.out'.format(prefix), thermo_report_freq, step=True, potentialEnergy=True, kineticEnergy=True, totalEnergy=True, temperature=True, volume=True, density=True, speed=True, separator='\t'))
 time_start = time.time()
 if run_npt:
-    simulation.reporters.append(app.dcdreporter.DCDReporter('{}_output.dcd'.format(prefix), dcd_report_freq, enforcePeriodicBox=False))
-else:#nvt
     simulation.reporters.append(app.dcdreporter.DCDReporter('{}_output.dcd'.format(prefix), dcd_report_freq))
+else:#nvt
+    simulation.reporters.append(app.dcdreporter.DCDReporter('{}_output.dcd'.format(prefix), dcd_report_freq, enforcePeriodicBox=False))
 
 while production_steps > 0:
     nsteps = min( production_steps, 10*dcd_report_freq )
