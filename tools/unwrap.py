@@ -3,6 +3,14 @@ import mdtraj as md
 import numpy as np
 
 
+def parse_arguments():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('traj', type=str, help="trajectory file")
+    parser.add_argument('top', type=str, help="topology file")
+    parser.add_argument('--method', default='nvt', type=str, help="method of unwrapping")
+    return parser.parse_args()
+
+
 def unwrap_traj(traj, top, method='npt'):
 
     # import wrapped trajectory
@@ -41,15 +49,6 @@ def unwrap_traj(traj, top, method='npt'):
 
     # return unwrapped trajectory
     return traj_uw
-
-
-def parse_arguments():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('traj', type=str, help="trajectory file")
-    parser.add_argument('top', type=str, help="topology file")
-    parser.add_argument('--method', default='nvt', type=str, help="method of unwrapping")
-    args = parser.parse_args()
-    return args
 
 
 if __name__ == '__main__':
