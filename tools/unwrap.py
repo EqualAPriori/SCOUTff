@@ -4,6 +4,7 @@ import numpy as np
 
 
 def parse_arguments():
+    """Parse command line arguments."""
     parser = argparse.ArgumentParser(description="Unwraps trajectory.")
     parser.add_argument('traj', type=str, help="trajectory file")
     parser.add_argument('top', type=str, help="topology file")
@@ -28,12 +29,17 @@ def unwrap_traj(traj_filename, top_filename, method='npt', save_traj=False):
         Path of topology file
     method : str, optional
         Which algorithm to use to unwrap trajectories. If 'nvt', the
-        conventional unwrapping scheme is used, and if 'npt, the scheme
-        outlined in the reference
+        conventional unwrapping scheme is used, and if 'npt', the scheme
+        outlined in the reference is used.
     save_traj : bool, optional
         If True, saves the unwrapped trajectory to a dcd file with '_uw'
         appended to the file prefix. For example, if traj_filename is
         'test.dcd', the unwrapped trajectory will be saved to 'test_uw.dcd'
+
+    Returns
+    -------
+    traj_uw : md.Trajectory
+        unwrapped Trajectory
     """
 
     # import wrapped trajectory
