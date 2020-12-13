@@ -2,13 +2,15 @@ import argparse
 import mdtraj as md
 import numpy as np
 
+__all__ = ['unwrap_traj']
+
 
 def parse_arguments():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(description="Unwraps trajectory.")
     parser.add_argument('traj', type=str, help="trajectory file")
     parser.add_argument('top', type=str, help="topology file")
-    parser.add_argument('--method', default='nvt', type=str, help="method of unwrapping")
+    parser.add_argument('--method', default='npt', type=str, help="method of unwrapping")
     return parser.parse_args()
 
 
@@ -55,19 +57,22 @@ def unwrap_traj(traj_filename, top_filename, method='npt', save_traj=False):
     # frame 0 in unwrapped trajectory is same as the wrapped trajectory's
     xyz_uw[0] = xyz_w[0]
 
-    # unwrap trajectories
+    # determine which algorithm to use
     if method == 'nvt':
-        for i in range(1, len(xyz_uw)):
-            uc_vecs = traj_w.unitcell_vectors[i]
+        def compute_uw_frame(i, xyz_w, xyz_uw, uc_vecs):
             uc_vecs_inv = np.linalg.inv(uc_vecs)
-            xyz_uw[i] = xyz_w[i] - np.floor((xyz_w[i] - xyz_uw[i-1]).dot(uc_vecs_inv) + np.array([0.5, 0.5, 0.5])).dot(uc_vecs)
+            return xyz_w[i] - np.floor((xyz_w[i] - xyz_uw[i-1]).dot(uc_vecs_inv) + np.array([0.5, 0.5, 0.5])).dot(uc_vecs)
     elif method == 'npt':
-        for i in range(1, len(xyz_uw)):
-            uc_vecs = traj_w.unitcell_vectors[i]
+        def compute_uw_frame(i, xyz_w, xyz_uw, uc_vecs):
             uc_vecs_inv = np.linalg.inv(uc_vecs)
-            xyz_uw[i] = xyz_uw[i-1] + (xyz_w[i] - xyz_w[i-1]) - np.floor((xyz_w[i] - xyz_w[i-1]).dot(uc_vecs_inv) + np.array([0.5, 0.5, 0.5])).dot(uc_vecs)
+            return xyz_uw[i-1] + (xyz_w[i] - xyz_w[i-1]) - np.floor((xyz_w[i] - xyz_w[i-1]).dot(uc_vecs_inv) + np.array([0.5, 0.5, 0.5])).dot(uc_vecs)
     else:
-        raise ValueError("method must by 'nvt' or 'npt'")
+        raise ValueError("method must be 'nvt' or 'npt'")
+
+    # unwrap trajectories
+    for i in range(1, len(xyz_uw)):
+        uc_vecs = traj_w.unitcell_vectors[i]
+        xyz_uw[i] = compute_uw_frame(i, xyz_w, xyz_uw, uc_vecs)
 
     # create new unwrapped trajectory
     traj_uw = md.Trajectory(xyz_uw, traj_w.topology,
