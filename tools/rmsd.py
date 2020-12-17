@@ -48,7 +48,7 @@ for iframe in range(n_frames):
 
 for delta_t in range(n_frames):
     msd_tmp = msd_data[:ndata[delta_t],delta_t]
-    #calculate statistics, i.e. mean, std, error in the mean
+    #calculate statistics, i.e. mean, std, error in the mean; also get decorrelation time for each delta t!
     msd_mean[delta_t] =
     msd_std[delta_t] =
     msd_error[delta_t] = 
