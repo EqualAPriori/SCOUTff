@@ -1,3 +1,4 @@
+# coding=utf-8
 import argparse
 import mdtraj as md
 import numpy as np
@@ -20,7 +21,7 @@ def unwrap_traj(traj_filename, top_filename, method='npt', save_traj=False):
     Reference
     ---------
     von Bülow, S.; Bullerjahn, J. T.; Hummer, G. Systematic Errors in Diffusion
-    Coefficients from Long-Time Molecular Dynamics Simulations at Constant Pressure.
+    Coefficients from Long-TIme Molecular Dynamics Simulations at Constant Pressure.
     J. Chem. Phys. 2020, 153 (2), 021101. https://doi.org/10.1063/5.0008316.
 
     Parameters
