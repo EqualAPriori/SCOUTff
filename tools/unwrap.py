@@ -60,20 +60,19 @@ def unwrap_traj(traj_filename, top_filename, method='npt', save_traj=False):
 
     # determine which algorithm to use
     if method == 'nvt':
-        def compute_uw_frame(i, xyz_w, xyz_uw, uc_vecs):
-            uc_vecs_inv = np.linalg.inv(uc_vecs)
+        def compute_uw_frame(i, xyz_w, xyz_uw, uc_vecs, uc_vecs_inv):
             return xyz_w[i] - np.floor((xyz_w[i] - xyz_uw[i-1]).dot(uc_vecs_inv) + np.array([0.5, 0.5, 0.5])).dot(uc_vecs)
     elif method == 'npt':
-        def compute_uw_frame(i, xyz_w, xyz_uw, uc_vecs):
-            uc_vecs_inv = np.linalg.inv(uc_vecs)
+        def compute_uw_frame(i, xyz_w, xyz_uw, uc_vecs, uc_vecs_inv):
             return xyz_uw[i-1] + (xyz_w[i] - xyz_w[i-1]) - np.floor((xyz_w[i] - xyz_w[i-1]).dot(uc_vecs_inv) + np.array([0.5, 0.5, 0.5])).dot(uc_vecs)
     else:
         raise ValueError("method must be 'nvt' or 'npt'")
 
-    # unwrap trajectories
+    # compute unwrapped positions
     for i in range(1, len(xyz_uw)):
         uc_vecs = traj_w.unitcell_vectors[i]
-        xyz_uw[i] = compute_uw_frame(i, xyz_w, xyz_uw, uc_vecs)
+        uc_vecs_inv = np.linalg.inv(uc_vecs)
+        xyz_uw[i] = compute_uw_frame(i, xyz_w, xyz_uw, uc_vecs, uc_vecs_inv)
 
     # create new unwrapped trajectory
     traj_uw = md.Trajectory(xyz_uw, traj_w.topology,
