@@ -250,12 +250,12 @@ if __name__ == '__main__':
     msd = msd_data[:,:,1]
     msd = msd.T
     msd = np.insert(msd,0,time,axis=1)
-    np.savetxt('msd_window_avgd.txt',xyz,header='#time\tmsd-chain1\tmsd-chain2\t...')
+    np.savetxt('msd_window_avgd.txt',msd,header='#time\tmsd-chain1\tmsd-chain2\t...')
     #2) example, un-averaged trajectory, taking tref=0 
     xyz = t.xyz
     msd = np.sum((xyz-xyz[0,:,:])**2.0, 2)
     msd = np.insert(msd,0,time,axis=1)
-    np.savetxt('msd_tref0.txt',xyz,header='#time\tmsd-chain1\tmsd-chain2\t...')
+    np.savetxt('msd_tref0.txt',msd,header='#time\tmsd-chain1\tmsd-chain2\t...')
 
 
 
