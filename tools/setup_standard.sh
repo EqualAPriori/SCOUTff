@@ -28,7 +28,7 @@ echo === $mydir ===
 cd $mydir
 
     # Standard parameter values, default
-    TEMPANNEAL=558.15
+    TEMPANNEAL=773.15
 
     #frequencies and times below are in terms of picoseconds
     DCDFREQ=100
