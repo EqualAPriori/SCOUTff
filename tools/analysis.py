@@ -445,21 +445,62 @@ def RMSBond(traj, backboneAtoms = ['C1','C2'], resid = [], autowarmup=True, nwar
     else:
         return 'n/a','n/a','n/a','n/a','n/a'
     
+def PersistenceL(trajFile, top, backboneAtoms, NP, coef = 1./10.,  stride = 1., chain0Id=0, firstpoint=2):
+    """
+    get persistence length of chains of indices from chain0Id to chain0Id+NP-1 
+    coef: divide results by 10. to convert to nm since MDAnalysis uses Angstrom
+"""
+    from MDAnalysis.lib.mdamath import make_whole
+    import MDAnalysis as mda
+    from MDAnalysis.analysis import polymer
+
+    u = mda.Universe(top,trajFile)
+    for frag in u.atoms.fragments:
+        make_whole(frag)
+    molecules  = u.atoms.fragments
+    filter = 'name {}'.format(*backboneAtoms)
+    backbones = [mol.select_atoms(filter) for mol in molecules][chain0Id:chain0Id+NP]
+    sorted_backbones = [polymer.sort_backbone(bb) for bb in backbones]
+
+    persistence_length = polymer.PersistenceLength(sorted_backbones)
+    persistence_length.run()
+    LB = persistence_length.lb * coef
+    if firstpoint==0:
+        LP = persistence_length.lp * coef
+    else:
+        LP = polymer.fit_exponential_decay(persistence_length.x[firstpoint:],persistence_length.results[firstpoint:])
+        persistence_length.fit = np.exp(-persistence_length.x[firstpoint:]/LP)
+        LP *= coef
+
+    fig,ax = plt.subplots(nrows=1, ncols=1, figsize=[3,2])
+    ax.plot(persistence_length.x * coef, persistence_length.results, 'ro', label='Result')
+    ax.plot(persistence_length.x[firstpoint:] * coef , persistence_length.fit, label='Fit')
+    ax.vlines(LP, 0., 1,  ls=':',lw=0.75)
+    plt.text(2.*LP, 0.5*max(persistence_length.fit), '$<cos\\theta> = exp(-n*{}/{})$'.format(round(LB,3),round(LP,3)), size=7)
+    ax.set_xlim(-0.1, 1.1 * max(persistence_length.x * coef ))
+    ax.set_xlabel(r'$n*l_b$')
+    ax.set_ylabel(r'$C(n*l_b)$')
+    plt.savefig('persistenceL.png',dpi=500,transparent=True,bbox_inches="tight")
+
+    return LP, LB, len(sorted_backbones[0])
+
 def GetStats(trajFile, top, NP, ThermoLog, DOP = 10, NAtomsPerChain = None,  
              backboneAtoms= ['C1','C2'], monMass={}, nMons={}, density=None,
              StatsFName = 'AllStats.dat', RgDatName = 'RgTimeSeries', ReeDatName = 'ReeTimeSeries',RgStatOutName = 'RgReeStats', Ext='.dat',  
              fi = 'openmm', obs = None, cols = None, density_col = None,
-             res0Id = 0, stride = 1, autowarmup = True, nwarmup = 100, plot = False, unit = 'real'):
+             PersistenceFirstpoint = 2, res0Id = 0, chain0Id = 0, stride = 1, autowarmup = True, nwarmup = 100, plot = False, unit = 'real'):
     """"
     fi = 'openmm' or 'lammps'
     """
     txt = '# Obs.    Avg.\tS.D.\tStdErr.\tCorr.\tStdErr.\tUncorr.Samples\n'
-
+   
     if trajFile and top:
         traj = md.load(trajFile, top=top, stride = stride)
         try:
+            print('Making molecules whole')
             traj.make_molecules_whole(inplace=True, sorted_bonds=None)
         except:
+            print('Pass making molecules whole')
             pass
         if fi == 'lammps' and unit == 'nonDim':
             traj.xyz *= 10.
@@ -505,12 +546,14 @@ def GetStats(trajFile, top, NP, ThermoLog, DOP = 10, NAtomsPerChain = None,
         except:
             txt +=  '\n%s  %s  %s  %s' %('Bond', lAvg, lStd, lErr)
         #calculate characteristic ratio
-        if isinstance(lRMS,float):
+        try:
+#        if isinstance(lRMS,float):
             n = len(backboneAtoms)*DOP - 1 # number of backbone bonds
             Cn = ReeRMS**2 / (n * lRMS**2)
             txt2 += '\n\nRMS bond length between heavy atoms: %8.8f +/- %8.8f' %(lRMS,lRMSErr)
             txt2 += '\nCharacteristic ratio:  %8.8f' %(Cn)
-        
+        except:
+            pass        
     # statistical segment length
     Vref1 = 0.1 #nm^3
     Vref2 = 0.117 #nm^3
@@ -530,6 +573,18 @@ def GetStats(trajFile, top, NP, ThermoLog, DOP = 10, NAtomsPerChain = None,
         b2 = RgRMS * np.sqrt(6./Nseg2)
         txt2 += '\nb (Vref=%3.4fnm^3): %8.8f' %(Vref1,b1)
         txt2 += '\nb (Vref=%3.4fnm^3): %8.8f' %(Vref2,b2)
+
+    # persistence length if MDAnalysis is installed
+    if NP > 0 and trajFile and backboneAtoms:
+        try:
+            import MDAnalysis as mda
+            getPersistence = True
+        except:
+            getPersistence = False
+        if getPersistence:
+            P, lAvg_Persistence, bb_Persistence  = PersistenceL(trajFile, top, backboneAtoms, NP, coef = 1./10.,  stride = stride, chain0Id = chain0Id, firstpoint = PersistenceFirstpoint)
+            txt2 += '\nPersistence length: %3.4f nm (calculated from avg bond length %3.4f nm, %i chains, %i backbone atoms per chain)' %(P, lAvg_Persistence, NP, bb_Persistence)
+
     print(txt2)
     f = open(StatsFName, 'w')
     print('\n...Writing results to {}...'.format(StatsFName))
@@ -589,6 +644,8 @@ if __name__ ==  '__main__':
     parser.add_argument('-mon', action='append', nargs=2, help = "pairs: monomer_name number_per_chain")
 
     parser.add_argument('-res0', type = int, default = 0, help='index of the first polymer residue')
+    parser.add_argument('-ch0', type = int, default = 0, help='index of the first polymer chain')
+    parser.add_argument('-lp0', type = int, default = 2, help='index of the first data point used to fit persistence length')
     parser.add_argument('-a', action='store_true', help='use autowarmup to get stats')
     parser.add_argument('-g', action='store_true', help='plot time series of observables')
     parser.add_argument('-w', type = int, default=100, help='number of warmup data points')    
@@ -606,9 +663,12 @@ if __name__ ==  '__main__':
     NP = args.np
     DOP = args.dop 
     res0Id = args.res0
+    chain0Id = args.ch0
     NAtomsPerChain = args.nac
     if NAtomsPerChain != None:
         DOP=NAtomsPerChain    
+    PersistenceFirstpoint = args.lp0
+
     # thermo 
     cols = args.c
     density_col = args.densc
@@ -629,9 +689,9 @@ if __name__ ==  '__main__':
     plot = args.g
     nwarmup = args.w
     
-    GetStats(TrajFile, top, NP, ThermoLog, DOP = DOP, NAtomsPerChain = NAtomsPerChain, stride = stride, 
+    GetStats(TrajFile, top, NP, ThermoLog, DOP = DOP, NAtomsPerChain = NAtomsPerChain, stride = stride, PersistenceFirstpoint = PersistenceFirstpoint,
             backboneAtoms = backboneAtoms, StatsFName = 'AllStats.dat', 
-            monMass=monMass,nMons=nMons, density=density, res0Id = res0Id,
+            monMass=monMass,nMons=nMons, density=density, res0Id = res0Id, chain0Id=chain0Id,
             RgDatName = 'RgTimeSeries', ReeDatName = 'ReeTimeSeries',RgStatOutName = 'RgReeStats', Ext='.dat',
             cols = cols, density_col = density_col, autowarmup = autowarmup, nwarmup = nwarmup, plot = plot)
 
