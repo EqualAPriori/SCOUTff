@@ -20,6 +20,7 @@
 from simtk import unit
 from simtk.openmm import app
 import simtk.openmm as mm
+import mdtraj
 import numpy as np
 import argparse as ap
 import time
@@ -30,6 +31,14 @@ def write_full_pdb(filename,topology,positions):
     app.pdbfile.PDBFile.writeHeader(topology,open(filename,'w'))
     app.pdbfile.PDBFile.writeModel(topology,positions,open(filename,'a'))
     app.pdbfile.PDBFile.writeFooter(topology,open(filename,'a'))
+
+def pdb_to_xyz(filename):
+    _t = mdtraj.load(filename)
+    prefix,suffix = os.path.splitext(filename)
+    newfilename = prefix+'.xyz'
+    _t.save(newfilename)
+    return newfilename
+
 
 # === Simulation Options ===
 prefix = 'packing'
@@ -65,6 +74,7 @@ parser.add_argument('-top','--topfile', type=str, default='', help = "optionally
 parser.add_argument('-ff','--fflist', type=str, nargs='+', help = "string of path to ff files")
 parser.add_argument('-PME', action='store_true', help = 'LJPME is default, toggle to enable PME')
 parser.add_argument('-tail', action='store_true', help = 'tail correction is false by default, toggle to turn on')
+parser.add_argument('-xyz', action='store_true', help = 'toggle xyz file format instead of pdb')
 args = parser.parse_args()
 
 box_L = args.L
@@ -82,13 +92,23 @@ else:
             f.write('{}\t{}\n'.format(entry[0],entry[1]))
     sys_descrip = [ (entry[0], int(entry[1])) for entry in args.molpair ]
 
+
+if args.xyz:
+    filetype='xyz'
+else:
+    filetype='pdb'
+
 sys = []
 nMols = []
 chainPDBs = []
 for entry in sys_descrip:
     pdb = app.PDBFile('{}{}'.format(args.structlib,entry[0]))
     sys.append( (pdb.topology, entry[1]) )
-    chainPDBs.append(os.path.join(args.structlib,entry[0]))
+    if filetype == 'xyz':
+        tmp_pdbfile = os.path.join(args.structlib, entry[0])
+        chainPDBs.append( pdb_to_xyz(tmp_pdbfile) )
+    else:
+        chainPDBs.append(os.path.join(args.structlib,entry[0]))
     nMols.append(entry[1])
 
 #ff_list = ['TrappeUA_Styrene_Gromos.xml','tip4pew.xml']
@@ -103,6 +123,7 @@ else:
     print('using LJPME, tail correction automatically off')
     nonbonded_method = app.LJPME
     use_tail = False
+
 
 # === Make topology ===
 top = app.topology.Topology()
@@ -132,11 +153,12 @@ def PackMol(nMols, chainPDBs, x, y, z, pdbMix = '{}_packmol.pdb'.format(prefix),
     """nMols: list of number of molecules for each species
     chainPDBs: list of pdbs of each species
     x,y,z: box dimensions in nm"""
+    _filetype = pdbMix.split('.')[-1]
     #convert to angstrom and subtrac 1 angstrom
     x,y,z = (x*10., y*10., z*10.)
     s = """tolerance 2.0
-filetype pdb
-output {}\n""".format(pdbMix)
+filetype {}
+output {}\n""".format(_filetype,pdbMix)
 
     for i, nMol in enumerate(nMols):
         if nMol > 0:
@@ -199,12 +221,17 @@ simulation = app.Simulation( top, system, integrator, platform, properties )
 
 
 # === Get initial configuration === 
-out_pdb_filename = PackMol(nMols, chainPDBs, box_L, box_L, box_L) 
-sys_pdb = app.PDBFile(out_pdb_filename)
-positions = sys_pdb.positions
-
-
+out_filename = '{}_packmol.{}'.format(prefix,filetype)
+PackMol(nMols, chainPDBs, box_L, box_L, box_L, pdbMix = out_filename) 
+if filetype == 'xyz':
+    traj = mdtraj.load(out_filename, top = mdtraj.Topology.from_openmm(simulation.topology))
+    positions = traj.openmm_positions(0)
+else:
+    sys_pdb = app.PDBFile(out_filename)
+    positions = sys_pdb.positions
 simulation.context.setPositions(positions)
+
+
 #app.pdbfile.PDBFile.writeModel(simulation.topology,positions,open('{}_packmol.pdb'.format(prefix),'w'))
 write_full_pdb('{}_packmol.pdb'.format(prefix),simulation.topology,positions)
 simulation.context.setPeriodicBoxVectors(periodic_box_vectors[0],periodic_box_vectors[1],periodic_box_vectors[2]) # Set the periodic box vectors
