@@ -5,6 +5,11 @@
 #
 # example usage:
 #   python make_topology.py -L 10.0 -pkmldir /home/kshen/openmm/Structures/packmol -structlib ../../structlib/ -m polystyrene/PS10_a1.pdb 10 -m polystyrene/PS10_a2.pdb 10 --fflist ../TrappeUA_Styrene_Gromos.xml
+#   
+#   2021.01.06: modified to include -xyz flag that will use the .xyz format to ensure openMM readability when > 99999 atoms.
+#   python make_topology.py -L 10.0 -pkmldir /home/kshen/openmm/Structures/packmol -structlib ../../structlib/ -m polystyrene/PS10_a1.pdb 10 -m polystyrene/PS10_a2.pdb 10 --fflist ../TrappeUA_Styrene_Gromos.xml -xyz
+#
+#   2021.01.22: modified to save out topology, both as pickle of openmm topology and dataframe+bond that mdtraj topology can read
 
 #
 # key variables:
@@ -26,6 +31,8 @@ import argparse as ap
 import time
 import os
 from subprocess import call
+import pickle
+
 
 def write_full_pdb(filename,topology,positions):
     app.pdbfile.PDBFile.writeHeader(topology,open(filename,'w'))
@@ -119,6 +126,8 @@ if args.PME:
     print('using PME with tail correction {}'.format(args.tail))
     nonbonded_method = app.PME
     use_tail = args.tail
+    print('actually, for TraPPE without charges can use CutoffPeriodic')
+    nonbonded_method = app.CutoffPeriodic
 else: 
     print('using LJPME, tail correction automatically off')
     nonbonded_method = app.LJPME
@@ -146,6 +155,14 @@ for ii,mol in enumerate(sys):
 #top_xml = mm.openmm.XmlSerializer.serialize(top)
 #with open('proposed_top.xml','w') as f:
 #    f.write(top_xml)
+pickle.dump( top, open("{}_topology.p".format(prefix),"wb") )
+
+top_mdtraj = mdtraj.Topology.from_openmm(top)
+df,bonds = top_mdtraj.to_dataframe()
+df.to_csv('{}_topology.csv'.format(prefix))
+np.savetxt('{}_topology_bonds.dat'.format(prefix),bonds)
+
+test = pickle.load(open('{}_topology.p'.format(prefix),"rb"))
 
 
 # === Packmol ===
@@ -157,6 +174,7 @@ def PackMol(nMols, chainPDBs, x, y, z, pdbMix = '{}_packmol.pdb'.format(prefix),
     #convert to angstrom and subtrac 1 angstrom
     x,y,z = (x*10., y*10., z*10.)
     s = """tolerance 2.0
+maxit 10
 filetype {}
 output {}\n""".format(_filetype,pdbMix)
 
@@ -201,7 +219,7 @@ system = forcefield.createSystem(top,
                                 ewaldErrorTolerance=ewald_tol, 
                                 rigidWater=True, 
                                 constraints=None)
-
+print('done setting up system object')
 
 barostat = mm.MonteCarloBarostat( pressure*unit.bar, temperature*unit.kelvin, barostatfreq )
 #barostat = mm.MonteCarloBarostat( pressure, temperature, barostatfreq )
@@ -209,6 +227,7 @@ if run_npt:
     system.addForce(barostat)
 
 
+print('Setting up integrator, platform, simulation')
 integrator = mm.LangevinIntegrator(temperature*unit.kelvin, friction, dt*unit.picosecond)
 if use_gpu:
     platform = mm.Platform.getPlatformByName('OpenCL')
@@ -221,6 +240,7 @@ simulation = app.Simulation( top, system, integrator, platform, properties )
 
 
 # === Get initial configuration === 
+print('done setting up simulation object, now setting coords and etc')
 out_filename = '{}_packmol.{}'.format(prefix,filetype)
 PackMol(nMols, chainPDBs, box_L, box_L, box_L, pdbMix = out_filename) 
 if filetype == 'xyz':
@@ -237,7 +257,7 @@ write_full_pdb('{}_packmol.pdb'.format(prefix),simulation.topology,positions)
 simulation.context.setPeriodicBoxVectors(periodic_box_vectors[0],periodic_box_vectors[1],periodic_box_vectors[2]) # Set the periodic box vectors
 
 
-simulation.context.applyConstraints(1e-8)
+#simulation.context.applyConstraints(1e-8)
 
 
 # By default PME turns on tail correction. Manually turn off if requested
@@ -258,12 +278,12 @@ outfile.close()
 print('\n=== Minimizing ===')
 time_start = time.time()
 print('pre minimization potential energy: {} \n'.format(simulation.context.getState(getEnergy=True).getPotentialEnergy()))
-simulation.minimizeEnergy(tolerance=0.01*unit.kilojoules_per_mole,maxIterations=1000000)
+simulation.minimizeEnergy(tolerance=0.01*unit.kilojoules_per_mole,maxIterations=10000)
 print('post minimization potential energy: {} \n'.format(simulation.context.getState(getEnergy=True).getPotentialEnergy()))
 time_end = time.time()
 print("done with minimization in {} minutes\n".format((time_end-time_start)/60.))
 positions = simulation.context.getState(getPositions=True).getPositions()       
-#app.pdbfile.PDBFile.writeModel(simulation.topology,positions,open('{}_post_minimization.pdb'.format(prefix),'w'))
+app.pdbfile.PDBFile.writeModel(simulation.topology,positions,open('{}_post_minimization.pdb'.format(prefix),'w'))
 simulation.topology.setPeriodicBoxVectors( simulation.context.getState().getPeriodicBoxVectors() )
 write_full_pdb('{}_post_minimization.pdb'.format(prefix),simulation.topology,positions)
 
