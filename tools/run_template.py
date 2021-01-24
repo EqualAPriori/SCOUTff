@@ -7,6 +7,9 @@
 #   python run.py -L 10.0 --fflist ./TrappeUA_Styrene_Gromos.xml
 #   python run.py -prefix run1 -sysxml run0_system.xml -chkstate run0_checkpoint.xml 
 #   python run.py -prefix run2 -sysxml run0_system.xml -chkstate run0_checkpoint.chk
+#   python run.py -prefix run2 -sysxml run0_system.xml -chkstate run0_checkpoint.chk -PME -tail -top packing_topology.p
+#   python run.py -prefix run2 -sysxml run0_system.xml -chkstate run0_checkpoint.chk -PME -tail -top packing_topology.csv packing_topology_bond.dat
+#   python run.py -prefix run2 -sysxml run0_system.xml -chkstate run0_checkpoint.chk -PME -tail -top topology.txt
 #
 # key variables:
 #   sys_descrip: [ ('mol1filename',num_mol1), ('mol2filename',num_mol2), ... ]
@@ -26,6 +29,7 @@ import argparse as ap
 import time
 import os
 from subprocess import call
+import pickle, pandas, mdtraj
 
 def write_full_pdb(filename,topology,positions):
     app.pdbfile.PDBFile.writeHeader(topology,open(filename,'w'))
@@ -68,6 +72,7 @@ parser.add_argument('-chkstate', type=str, default=None, help = 'checkpoint or s
 parser.add_argument('-PME', action='store_true', help = 'LJPME is default, toggle to enable PME')
 parser.add_argument('-tail', action='store_true', help = 'tail correction is false by default, toggle to turn on')
 parser.add_argument('-NVT', action='store_true', help = 'NVT, turn off barostat')
+parser.add_argument('-top', default=None, type=str, nargs='+', help = 'topology files')
 args = parser.parse_args()
 
 run_npt         = not args.NVT
@@ -83,7 +88,74 @@ ff_list = args.fflist
 pdb = app.PDBFile 
 
 sys_pdb = app.PDBFile(args.initpdb)
-top = sys_pdb.topology
+print('args.top: {}'.format(args.top))
+if args.top is None:
+    print('reading topology from args.initpdb {}'.format(args.top))
+    top = sys_pdb.topology
+else: #is a list
+    print('reading topology from args.top {}'.format(args.top))
+    suffixes = [ name.split('.')[-1] for name in args.top ]
+    if suffixes[0] == 'p':
+        print('... reading a pickle file (should be openmm topology object)')
+        top = pickle.load(open(args.top[0],"rb"))
+    elif suffixes[0] == 'txt':
+        print('... reading our custom topology definition. needs a topology library, construct manually')
+
+        structlib='/home/dans/SCOUTff/tools/../structlib/Kraton/'
+        def pdb_to_xyz(filename):
+            _t = mdtraj.load(filename)
+            prefix,suffix = os.path.splitext(filename)
+            newfilename = prefix+'.xyz'
+            _t.save(newfilename)
+            return newfilename
+
+
+        with open('topology.txt','r') as f:
+            sys_descrip = []
+            for line in f:
+                tmp = line.split()
+                sys_descrip.append( [tmp[0], int(tmp[1])] )
+        print(sys_descrip)
+
+        sys = []
+        nMols = []
+        chainPDBs = []
+        for entry in sys_descrip:
+            print(entry)
+            filetype = entry[0].split('.')[-1]
+            pdb = app.PDBFile('{}{}'.format(structlib,entry[0]))
+            sys.append( (pdb.topology, entry[1]) )
+            if filetype == 'xyz':
+                tmp_pdbfile = os.path.join(structlib, entry[0])
+                chainPDBs.append( pdb_to_xyz(tmp_pdbfile) )
+            else:
+                chainPDBs.append(os.path.join(structlib,entry[0]))
+            nMols.append(entry[1])
+
+        top = app.topology.Topology()
+        for ii,mol in enumerate(sys):
+            moltop, nummol = mol
+            for jj in range(nummol):
+                atoms_in_top = []
+                for c in moltop.chains():
+                    chain = top.addChain()
+                    for r in c.residues():
+                        residue = top.addResidue(r.name,chain)
+                        for a in enumerate(r.atoms()):
+                            atom = top.addAtom(a[1].name, a[1].element, residue)
+                            atoms_in_top.append(atom)
+                            #print(atom)
+                for bond in moltop.bonds():
+                    bi1,bi2 = bond[0].index, bond[1].index
+                    top.addBond( atoms_in_top[bi1], atoms_in_top[bi2] ) 
+    elif len(suffixes) == 2:
+        print('... first file is data frame, second file can be read as nparray of bonds')
+        df = pandas.read_csv(args.top[0])
+        bonds = np.loadtxt(args.top[1])
+        top_mdtraj = mdtraj.Topology.from_dataframe(df,bonds)
+        top = top_mdtraj.to_openmm()
+    else:
+        raise ValueError('Unrecognized topology input file formats')
 
 if ff_list is None and args.sysxml is None:
     raise ValueError('must either provide forcefield or system xml')
@@ -92,10 +164,13 @@ if args.PME:
     print('using PME with tail correction {}'.format(args.tail))
     nonbonded_method = app.PME
     use_tail = args.tail
+    print('Actually, for noncharged PME, can just use cutoff periodic')
+    nonbonded_method = app.CutoffPeriodic
 else: 
     print('using LJPME, tail correction automatically off')
     nonbonded_method = app.LJPME
     use_tail = False
+
 
 # === Set up simulation ===
 if ff_list is not None:
@@ -121,7 +196,8 @@ else: #ff_list should be defined
                                     nonbondedCutoff = nonbonded_cutoff, 
                                     ewaldErrorTolerance=ewald_tol, 
                                     rigidWater=True, 
-                                    constraints=app.AllBonds)
+                                    constraints=None)
+                                    #constraints=app.AllBonds)
 
     barostat = mm.MonteCarloBarostat( pressure*unit.bar, temperature_anneal*unit.kelvin, barostatfreq )
     #barostat = mm.MonteCarloBarostat( pressure, temperature, barostatfreq )
@@ -162,7 +238,7 @@ else:
     simulation.topology.setPeriodicBoxVectors( simulation.context.getState().getPeriodicBoxVectors() )
     write_full_pdb('{}_initial.pdb'.format(prefix),simulation.topology,positions)
 
-    simulation.context.applyConstraints(1e-8)
+    #simulation.context.applyConstraints(1e-8)
 
 
 # By default PME turns on tail correction. Manually turn off if requested
@@ -184,7 +260,7 @@ outfile.close()
 print('\n=== Minimizing ===')
 time_start = time.time()
 print('pre minimization potential energy: {} \n'.format(simulation.context.getState(getEnergy=True).getPotentialEnergy()))
-simulation.minimizeEnergy(tolerance=0.01*unit.kilojoules_per_mole,maxIterations=1000000)
+simulation.minimizeEnergy(tolerance=0.01*unit.kilojoules_per_mole,maxIterations=10000)
 print('post minimization potential energy: {} \n'.format(simulation.context.getState(getEnergy=True).getPotentialEnergy()))
 time_end = time.time()
 print("done with minimization in {} minutes\n".format((time_end-time_start)/60.))
