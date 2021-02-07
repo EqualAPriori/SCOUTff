@@ -10,6 +10,7 @@
 #   python run.py -prefix run2 -sysxml run0_system.xml -chkstate run0_checkpoint.chk -PME -tail -top packing_topology.p
 #   python run.py -prefix run2 -sysxml run0_system.xml -chkstate run0_checkpoint.chk -PME -tail -top packing_topology.csv packing_topology_bond.dat
 #   python run.py -prefix run2 -sysxml run0_system.xml -chkstate run0_checkpoint.chk -PME -tail -top topology.txt
+#   python run.py -initpdb packing_post_minimization.pdb -boxfile packing_box.txt -ff ~/mylib/SCOUTff/TrappeUA/XML/TrappeUA_Master.xml -PME -tail -top topology.txt
 #
 # key variables:
 #   sys_descrip: [ ('mol1filename',num_mol1), ('mol2filename',num_mol2), ... ]
@@ -87,10 +88,10 @@ else:
 ff_list = args.fflist
 pdb = app.PDBFile 
 
-sys_pdb = app.PDBFile(args.initpdb)
 print('args.top: {}'.format(args.top))
 if args.top is None:
     print('reading topology from args.initpdb {}'.format(args.top))
+    sys_pdb = app.PDBFile(args.initpdb)
     top = sys_pdb.topology
 else: #is a list
     print('reading topology from args.top {}'.format(args.top))
@@ -191,7 +192,7 @@ if args.sysxml is not None:
     system = args.sysxml
 else: #ff_list should be defined
     print('--- Making new system with given ff and settings ---')
-    system = forcefield.createSystem(sys_pdb.topology, 
+    system = forcefield.createSystem(top, 
                                     nonbondedMethod = nonbonded_method,
                                     nonbondedCutoff = nonbonded_cutoff, 
                                     ewaldErrorTolerance=ewald_tol, 
@@ -230,8 +231,16 @@ if args.chkstate is not None:
         raise ValueError('unsupported file format .{}'.format(suffix))
 else:
     print("initializing system to {}".format(args.initpdb))
-    positions = sys_pdb.positions
-
+    suffix = args.initpdb.split('.')[-1] 
+    if suffix == 'pdb':
+        sys_pdb = app.PDBFile(args.initpdb)
+        positions = sys_pdb.positions
+    elif suffix == 'xyz':
+        data = np.loadtxt(args.initpdb, skiprows=2, usecols=(1,2,3))
+        positions=data
+    else:
+        raise ValueError('unsupported coordinate file format {}'.format(args.initpdb))
+    
     simulation.context.setPositions(positions)
     simulation.context.setPeriodicBoxVectors(periodic_box_vectors[0],periodic_box_vectors[1],periodic_box_vectors[2]) # Set the periodic box vectors
     #app.pdbfile.PDBFile.writeModel(simulation.topology,positions,open('{}_initial.pdb'.format(prefix),'w'))
