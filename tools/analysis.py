@@ -281,7 +281,7 @@ def GetRgRee(traj, DOP, NP, NAtomsPerChain = None, plotDir = 'RgRee_plots',
                     warmup,Data,nwarmup = stats.autoWarmupMSER(file, 1)
 
                 else:
-                    warmup,Data = stats.extractData(file, j0, nwarmup)
+                    warmup,Data = stats.extractData(file, j+1, nwarmup)
                 (nsamples,(min,max),mean,semcc,kappa,unbiasedvar,autocor)=stats.doStats(warmup,Data, False ,False,'_{0}_mol{1}'.format(file.name,1))
                 Data = Data[::int(np.max([1.,kappa]))] # get decorrelated samples
                 RgSqList_b[i].extend(Data)
