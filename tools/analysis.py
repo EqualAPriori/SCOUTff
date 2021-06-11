@@ -281,7 +281,7 @@ def GetRgRee(traj, DOP, NP, NAtomsPerChain = None, plotDir = 'RgRee_plots',
                     warmup,Data,nwarmup = stats.autoWarmupMSER(file, 1)
 
                 else:
-                    warmup,Data = stats.extractData(file, j0, nwarmup)
+                    warmup,Data = stats.extractData(file, 1, nwarmup)
                 (nsamples,(min,max),mean,semcc,kappa,unbiasedvar,autocor)=stats.doStats(warmup,Data, False ,False,'_{0}_mol{1}'.format(file.name,1))
                 Data = Data[::int(np.max([1.,kappa]))] # get decorrelated samples
                 RgSqList_b[i].extend(Data)
@@ -488,7 +488,7 @@ def GetStats(trajFile, top, NP, ThermoLog, DOP = 10, NAtomsPerChain = None,
              backboneAtoms= ['C1','C2'], monMass={}, nMons={}, density=None,
              StatsFName = 'AllStats.dat', RgDatName = 'RgTimeSeries', ReeDatName = 'ReeTimeSeries',RgStatOutName = 'RgReeStats', Ext='.dat',  
              fi = 'openmm', obs = None, cols = None, density_col = None,
-             PersistenceFirstpoint = 2, res0Id = 0, chain0Id = 0, stride = 1, autowarmup = True, nwarmup = 100, plot = False, unit = 'real'):
+             PersistenceFirstpoint = 2, res0Id = 0, chain0Id = 0, stride = 1, autowarmup = True, nwarmup = 100, plot = False, unit = 'real', make_whole = 'False'):
     """"
     fi = 'openmm' or 'lammps'
     """
@@ -496,12 +496,13 @@ def GetStats(trajFile, top, NP, ThermoLog, DOP = 10, NAtomsPerChain = None,
    
     if trajFile and top:
         traj = md.load(trajFile, top=top, stride = stride)
-        try:
-            print('Making molecules whole')
-            traj.make_molecules_whole(inplace=True, sorted_bonds=None)
-        except:
-            print('Pass making molecules whole')
-            pass
+        if make_whole:
+            try:
+                print('Making molecules whole')
+                traj.make_molecules_whole(inplace=True, sorted_bonds=None)
+            except:
+                print('Pass making molecules whole')
+                pass
         if fi == 'lammps' and unit == 'nonDim':
             traj.xyz *= 10.
             traj.unitcell_lengths *= 10
@@ -649,6 +650,7 @@ if __name__ ==  '__main__':
     parser.add_argument('-a', action='store_true', help='use autowarmup to get stats')
     parser.add_argument('-g', action='store_true', help='plot time series of observables')
     parser.add_argument('-w', type = int, default=100, help='number of warmup data points')    
+    parser.add_argument('-mkwhole', action='store_true', help='making molecules whole')
     args = parser.parse_args()
     
     """ example command:
@@ -658,7 +660,8 @@ if __name__ ==  '__main__':
     top = args.top  
     ThermoLog = args.ther    
     stride = args.s
-    
+    make_whole = args.mkwhole
+ 
     # Rg Ree    
     NP = args.np
     DOP = args.dop 
@@ -693,5 +696,5 @@ if __name__ ==  '__main__':
             backboneAtoms = backboneAtoms, StatsFName = 'AllStats.dat', 
             monMass=monMass,nMons=nMons, density=density, res0Id = res0Id, chain0Id=chain0Id,
             RgDatName = 'RgTimeSeries', ReeDatName = 'ReeTimeSeries',RgStatOutName = 'RgReeStats', Ext='.dat',
-            cols = cols, density_col = density_col, autowarmup = autowarmup, nwarmup = nwarmup, plot = plot)
+            cols = cols, density_col = density_col, autowarmup = autowarmup, nwarmup = nwarmup, plot = plot, make_whole = make_whole)
 
