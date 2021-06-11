@@ -210,7 +210,7 @@ def GetRgRee(traj, DOP, NP, NAtomsPerChain = None, plotDir = 'RgRee_plots',
         if j == 0:
             print('Indices of atoms in chain {} \n{}'.format(j+1,atom_indices))       
             print('Mass of atoms in a chain {}'.format(mass_list))
-        print('Evaluate Rg and Ree of chain {}/{}'.format(j+1,len(MoleculeResidueList)),end="\r")        
+        print('Evaluate Rg and Ree of chain {}/{}'.format(j+1,len(MoleculeResidueList)))        
 
         '''=== Compute Rg ==='''
         Rg = md.compute_rg(traj.atom_slice(atom_indices),masses=mass_list) 
@@ -683,7 +683,7 @@ if __name__ ==  '__main__':
     if args.mon:
         for val in args.mon:
             nMons.update({val[0]:int(val[1])})
-    monMass = {'pS': 108., 'pmS': 118., 's12pB': 56., 's14pB': 56., '12pB': 54., '14pBcis': 54., '14pBtrans':54.} # g/mol
+    monMass = {'pS': 108., 'pmS': 118., 's12pB': 56., 's14pB': 56., '12pB': 54., '14pBcis': 54., '14pBtrans':54., 'pS0':108.} # g/mol
     
     autowarmup = args.a
     plot = args.g
