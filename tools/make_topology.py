@@ -174,7 +174,8 @@ def PackMol(nMols, chainPDBs, x, y, z, pdbMix = '{}_packmol.pdb'.format(prefix),
     #convert to angstrom and subtrac 1 angstrom
     x,y,z = (x*10., y*10., z*10.)
     s = """tolerance 2.0
-maxit 10
+maxit 25
+nloop 250
 filetype {}
 output {}\n""".format(_filetype,pdbMix)
 
@@ -193,9 +194,15 @@ output {}\n""".format(_filetype,pdbMix)
     os.system('{}/packmol < {} > {}'.format(args.pkmldir, mixFile, logFile))
     finished = False
     while not finished:
-        f = open(logFile,'r')
-        if 'Success' in f.read():
+        #f = open(logFile,'r')
+        with open(logFile,'r') as f:
+          contents = f.read()
+        if 'Success' in contents:
             finished = True
+            print('Packmol success')
+        if 'ENDED' in contents:
+            finished = True
+            print('Packmol ended w/out converging, continuing with intermediate structure.')
         time.sleep(1) 
     return pdbMix
 
