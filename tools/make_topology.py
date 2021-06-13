@@ -174,7 +174,8 @@ def PackMol(nMols, chainPDBs, x, y, z, pdbMix = '{}_packmol.pdb'.format(prefix),
     #convert to angstrom and subtrac 1 angstrom
     x,y,z = (x*10., y*10., z*10.)
     s = """tolerance 2.0
-maxit 10
+maxit 25
+nloop 250
 filetype {}
 output {}\n""".format(_filetype,pdbMix)
 
@@ -193,9 +194,15 @@ output {}\n""".format(_filetype,pdbMix)
     os.system('{}/packmol < {} > {}'.format(args.pkmldir, mixFile, logFile))
     finished = False
     while not finished:
-        f = open(logFile,'r')
-        if 'Success' in f.read() or 'Running time' in  f.read():
+        #f = open(logFile,'r')
+        with open(logFile,'r') as f:
+          contents = f.read()
+        if 'Success' in contents:
             finished = True
+            print('Packmol success')
+        if 'ENDED' in contents:
+            finished = True
+            print('Packmol ended w/out converging, continuing with intermediate structure.')
         time.sleep(1) 
     return pdbMix
 
@@ -259,6 +266,8 @@ simulation.context.setPeriodicBoxVectors(periodic_box_vectors[0],periodic_box_ve
 
 #simulation.context.applyConstraints(1e-8)
 
+print('Current working directory:')
+print(os.getcwd())
 
 # By default PME turns on tail correction. Manually turn off if requested
 print('setting tail correction to {}'.format(use_tail))
