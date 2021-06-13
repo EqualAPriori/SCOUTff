@@ -194,7 +194,7 @@ output {}\n""".format(_filetype,pdbMix)
     finished = False
     while not finished:
         f = open(logFile,'r')
-        if 'Success' in f.read():
+        if 'Success' in f.read() or 'Running time' in  f.read():
             finished = True
         time.sleep(1) 
     return pdbMix
