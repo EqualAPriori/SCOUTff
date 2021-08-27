@@ -1,0 +1,146 @@
+REMARK   1 CREATED WITH MDTraj 1.9.3, 2021-08-24
+CRYST1   57.855   57.855   57.855  90.00  90.00  90.00 P 1           1 
+MODEL        0
+ATOM      1  CA  NHD A   1      35.289  43.870   4.437  1.00  0.00          C   
+ATOM      2  CB  NHD A   1      34.928  44.484   5.810  1.00  0.00          C   
+ATOM      3  CC  NHD A   1      35.707  42.419   4.731  1.00  0.00          C   
+ATOM      4  N   NHD A   1      36.096  44.583   6.688  1.00  0.00          N   
+ATOM      5  HA1 NHD A   1      34.529  43.947   3.660  1.00  0.00          H   
+ATOM      6  HA2 NHD A   1      36.129  44.456   4.065  1.00  0.00          H   
+ATOM      7  HB1 NHD A   1      34.665  45.511   5.558  1.00  0.00          H   
+ATOM      8  HB2 NHD A   1      34.079  44.010   6.303  1.00  0.00          H   
+ATOM      9  HC1 NHD A   1      36.161  41.981   3.842  1.00  0.00          H   
+ATOM     10  HC2 NHD A   1      36.555  42.365   5.414  1.00  0.00          H   
+ATOM     11  HN1 NHD A   1      36.616  43.742   6.484  1.00  0.00          H   
+ATOM     12  HN2 NHD A   1      36.726  45.339   6.463  1.00  0.00          H   
+ATOM     13  CA   ND A   2      34.582  41.550   5.365  1.00  0.00          C   
+ATOM     14  CB   ND A   2      33.137  41.864   4.934  1.00  0.00          C   
+ATOM     15  CC   ND A   2      34.993  40.056   5.371  1.00  0.00          C   
+ATOM     16  N    ND A   2      32.848  41.237   3.601  1.00  0.00          N   
+ATOM     17  HA1  ND A   2      34.582  41.904   6.396  1.00  0.00          H   
+ATOM     18  HB1  ND A   2      32.981  42.934   4.797  1.00  0.00          H   
+ATOM     19  HB2  ND A   2      32.459  41.395   5.647  1.00  0.00          H   
+ATOM     20  HC1  ND A   2      35.160  39.866   4.311  1.00  0.00          H   
+ATOM     21  HC2  ND A   2      35.903  39.969   5.964  1.00  0.00          H   
+ATOM     22  HN1  ND A   2      31.914  41.541   3.364  1.00  0.00          H   
+ATOM     23  HN2  ND A   2      32.830  40.249   3.812  1.00  0.00          H   
+ATOM     24  CA   NP A   3      34.041  38.992   5.984  1.00  0.00          C   
+ATOM     25  CB   NP A   3      34.643  37.601   5.644  1.00  0.00          C   
+ATOM     26  CC   NP A   3      33.985  39.275   7.511  1.00  0.00          C   
+ATOM     27  N    NP A   3      35.839  37.321   6.504  1.00  0.00          N   
+ATOM     28  HA1  NP A   3      33.035  39.015   5.564  1.00  0.00          H   
+ATOM     29  HB1  NP A   3      34.798  37.615   4.565  1.00  0.00          H   
+ATOM     30  HB2  NP A   3      33.817  36.918   5.846  1.00  0.00          H   
+ATOM     31  HC1  NP A   3      33.804  40.337   7.675  1.00  0.00          H   
+ATOM     32  HC2  NP A   3      34.941  39.156   8.020  1.00  0.00          H   
+ATOM     33  HN1  NP A   3      36.257  36.474   6.148  1.00  0.00          H   
+ATOM     34  HN2  NP A   3      35.527  37.160   7.451  1.00  0.00          H   
+ATOM     35  HN3  NP A   3      36.450  38.125   6.532  1.00  0.00          H   
+ATOM     36  CA   ND A   4      32.827  38.590   8.189  1.00  0.00          C   
+ATOM     37  CB   ND A   4      32.927  37.058   8.444  1.00  0.00          C   
+ATOM     38  CC   ND A   4      32.590  39.414   9.532  1.00  0.00          C   
+ATOM     39  N    ND A   4      34.311  36.761   8.958  1.00  0.00          N   
+ATOM     40  HA1  ND A   4      31.940  38.738   7.573  1.00  0.00          H   
+ATOM     41  HB1  ND A   4      32.746  36.526   7.510  1.00  0.00          H   
+ATOM     42  HB2  ND A   4      32.223  36.712   9.200  1.00  0.00          H   
+ATOM     43  HC1  ND A   4      33.480  39.355  10.159  1.00  0.00          H   
+ATOM     44  HC2  ND A   4      32.555  40.474   9.280  1.00  0.00          H   
+ATOM     45  HN1  ND A   4      34.278  35.753   9.009  1.00  0.00          H   
+ATOM     46  HN2  ND A   4      34.331  37.051   9.926  1.00  0.00          H   
+ATOM     47  CA   ND A   5      31.315  39.226  10.336  1.00  0.00          C   
+ATOM     48  CB   ND A   5      31.561  38.178  11.440  1.00  0.00          C   
+ATOM     49  CC   ND A   5      30.035  38.978   9.602  1.00  0.00          C   
+ATOM     50  N    ND A   5      30.564  38.128  12.567  1.00  0.00          N   
+ATOM     51  HA1  ND A   5      31.188  40.191  10.827  1.00  0.00          H   
+ATOM     52  HB1  ND A   5      32.545  38.250  11.905  1.00  0.00          H   
+ATOM     53  HB2  ND A   5      31.371  37.214  10.969  1.00  0.00          H   
+ATOM     54  HC1  ND A   5      30.210  38.008   9.137  1.00  0.00          H   
+ATOM     55  HC2  ND A   5      29.311  38.813  10.401  1.00  0.00          H   
+ATOM     56  HN1  ND A   5      29.625  38.107  12.194  1.00  0.00          H   
+ATOM     57  HN2  ND A   5      30.608  37.224  13.013  1.00  0.00          H   
+ATOM     58  CA  NTP A   6      29.604  40.071   8.607  1.00  0.00          C   
+ATOM     59  CB  NTP A   6      28.748  39.491   7.437  1.00  0.00          C   
+ATOM     60  CC  NTP A   6      28.824  41.280   9.246  1.00  0.00          C   
+ATOM     61  N   NTP A   6      27.593  38.687   7.856  1.00  0.00          N   
+ATOM     62  HA1 NTP A   6      30.484  40.540   8.166  1.00  0.00          H   
+ATOM     63  HB1 NTP A   6      29.439  39.017   6.740  1.00  0.00          H   
+ATOM     64  HB2 NTP A   6      28.350  40.404   6.996  1.00  0.00          H   
+ATOM     65  HC1 NTP A   6      28.526  42.077   8.565  1.00  0.00          H   
+ATOM     66  HC2 NTP A   6      29.401  41.671  10.085  1.00  0.00          H   
+ATOM     67  HN1 NTP A   6      27.119  39.107   8.643  1.00  0.00          H   
+ATOM     68  HN2 NTP A   6      27.871  37.730   8.021  1.00  0.00          H   
+ATOM     69  HN3 NTP A   6      26.915  38.739   7.109  1.00  0.00          H   
+ATOM     70  HC3 NTP A   6      27.925  40.953   9.769  1.00  0.00          H   
+TER      71      NTP A   6
+ENDMDL
+CONECT    1    5    6    2    3
+CONECT    2    7    8    4    1
+CONECT    3    9   10   13    1
+CONECT    4   11   12    2
+CONECT    5    1
+CONECT    6    1
+CONECT    7    2
+CONECT    8    2
+CONECT    9    3
+CONECT   10    3
+CONECT   11    4
+CONECT   12    4
+CONECT   13   17    3   14   15
+CONECT   14   18   19   13   16
+CONECT   15   20   21   13   24
+CONECT   16   22   23   14
+CONECT   17   13
+CONECT   18   14
+CONECT   19   14
+CONECT   20   15
+CONECT   21   15
+CONECT   22   16
+CONECT   23   16
+CONECT   24   28   15   25   26
+CONECT   25   29   30   24   27
+CONECT   26   31   32   24   36
+CONECT   27   33   34   35   25
+CONECT   28   24
+CONECT   29   25
+CONECT   30   25
+CONECT   31   26
+CONECT   32   26
+CONECT   33   27
+CONECT   34   27
+CONECT   35   27
+CONECT   36   40   26   37   38
+CONECT   37   41   42   36   39
+CONECT   38   43   44   36   47
+CONECT   39   45   46   37
+CONECT   40   36
+CONECT   41   37
+CONECT   42   37
+CONECT   43   38
+CONECT   44   38
+CONECT   45   39
+CONECT   46   39
+CONECT   47   51   38   48   49
+CONECT   48   52   53   47   50
+CONECT   49   54   55   47   58
+CONECT   50   56   57   48
+CONECT   51   47
+CONECT   52   48
+CONECT   53   48
+CONECT   54   49
+CONECT   55   49
+CONECT   56   50
+CONECT   57   50
+CONECT   58   62   49   59   60
+CONECT   59   63   64   58   61
+CONECT   60   70   65   66   58
+CONECT   61   67   68   69   59
+CONECT   62   58
+CONECT   63   59
+CONECT   64   59
+CONECT   65   60
+CONECT   66   60
+CONECT   67   61
+CONECT   68   61
+CONECT   69   61
+CONECT   70   60
+END
