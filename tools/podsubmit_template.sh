@@ -2,7 +2,7 @@
 # ask for 16 cores on two nodes
 #SBATCH --nodes=1 --partition=gpu
 #SBATCH --gres=gpu:1
-#SBATCH --time=96:00:00
+#SBATCH --time=167:00:00
 #SBATCH --job-name=__label__
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --mail-user=__USERNAME__@ucsb.edu
